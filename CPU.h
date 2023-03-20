@@ -1,12 +1,12 @@
-#include <stdint.h> 
-
+#pragma once
 class CPU
 {
 public:
 	CPU();
-	~CPU();
+	void ExecuteInstruction();
 
-	void ExecuteInstruction(uint16_t* opcode);
+	uint16_t PC;
+	uint16_t SP;
 
 private:
 	struct AF {
@@ -28,7 +28,5 @@ private:
 		uint8_t L;
 		uint8_t H;
 	};
-
-	uint16_t PC;
-	uint16_t SP;
 };
+

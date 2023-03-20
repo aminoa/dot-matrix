@@ -21,16 +21,22 @@
     <ClCompile Include="GB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MMU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CPU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GB.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="MMU.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPU.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GB.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
