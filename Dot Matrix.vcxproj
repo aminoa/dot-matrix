@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -17,6 +17,18 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\cpu.cpp" />
+    <ClCompile Include="src\gb.cpp" />
+    <ClCompile Include="src\mmu.cpp" />
+    <ClCompile Include="src\ppu.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\cpu.h" />
+    <ClInclude Include="src\gb.h" />
+    <ClInclude Include="src\mmu.h" />
+    <ClInclude Include="src\ppu.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -126,17 +138,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="CPU.cpp" />
-    <ClCompile Include="GB.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MMU.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CPU.h" />
-    <ClInclude Include="GB.h" />
-    <ClInclude Include="MMU.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,4 +1,5 @@
 #pragma once
+#include "mmu.h"
 class CPU
 {
 public:
@@ -28,5 +29,13 @@ private:
 		uint8_t L;
 		uint8_t H;
 	};
+
+	AF AF;
+	BC BC;
+	DE DE;
+	HL HL;
+
+
+	MMU* memory;
 };
 
