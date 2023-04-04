@@ -15,33 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\cpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GB.cpp">
+    <ClCompile Include="src\gb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="memory.cpp">
+    <ClCompile Include="src\mmu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CPU.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PPU.cpp">
+    <ClCompile Include="src\ppu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="memory.h">
+    <ClInclude Include="src\cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPU.h">
+    <ClInclude Include="src\gb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GB.h">
+    <ClInclude Include="src\mmu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PPU.h">
+    <ClInclude Include="src\ppu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

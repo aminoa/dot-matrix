@@ -4,7 +4,7 @@ class CPU
 {
 public:
 	CPU();
-	void ExecuteInstruction();
+	void ExecuteInstruction(uint8_t opcode);
 
 	uint16_t PC;
 	uint16_t SP;
@@ -34,8 +34,8 @@ private:
 	BC BC;
 	DE DE;
 	HL HL;
-
-
+	
 	MMU* memory;
+	
 };
 

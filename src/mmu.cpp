@@ -1,17 +1,12 @@
 #include "MMU.h"
 #include <iostream>
 
-MMU::MMU(const char* file_path)
+MMU::MMU()
 {
 	for (int i = 0; i < 0xFFFF; ++i)
 	{
 		memory[i] = 0;
 	}
-}
-
-void MMU::write_value(uint16_t PC, uint8_t value)
-{
-	memory[PC] = value;
 }
 
 void MMU::LoadROM(const char* path)
@@ -37,4 +32,9 @@ void MMU::LoadROM(const char* path)
 	}
 
 	delete[] buffer;
+}
+
+uint8_t MMU::ReadMemory(uint16_t address)
+{
+	return address;
 }

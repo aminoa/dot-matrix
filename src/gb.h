@@ -15,5 +15,5 @@ public:
 	MMU* mmu;
 	PPU* ppu;
 
-
+	const char* file_path;
 };

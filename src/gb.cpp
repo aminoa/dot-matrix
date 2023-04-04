@@ -6,32 +6,23 @@
 #include <iostream>
 #include <vector>
 
-GB::GB(const char* filename)
+GB::GB(const char* file_path)
 {
-	cpu = new CPU();
-	mmu = new MMU(filename);
-	ppu = new PPU();
-
+	this->cpu = new CPU();
+	this->mmu = new MMU();
+	this->ppu = new PPU();
+	this->file_path = file_path;
 }
 
 void GB::StartEmulation()
 {
-	//CPU has a value for the PC, calls on MMU to get value in address, then executes based on the instruction, updates cycles and PC accordingly 
-	//this->mmu->loadrom(this->filename);
-	//int cycles = 0;
+	mmu->LoadROM(file_path);
 
-	//while (true)
-	//{
-	//	uint8_t opcode = this->mmu->memory[this->cpu->pc];
-	//	this->cpu->execute(opcode, this->mmu);
-	//	cycles += this->cpu->cycles;
-	//	if (cycles >= 70224)
-	//	{
-	//		cycles -= 70224;
-	//		this->ppu->update(this->mmu);
-	//	}
-	//}
-
+	while (true)
+	{
+		uint8_t instruction = mmu->ReadMemory(cpu->PC);
+		cpu->ExecuteInstruction(instruction);
+	}
 }
 
 int main(int argc, char** argv)
@@ -47,4 +38,5 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
 
