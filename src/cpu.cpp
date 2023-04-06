@@ -1,764 +1,846 @@
 #include "CPU.h"
 #include <iostream>
 
-//need to make a good macro here
+#define UNIMPLEMENTED(instruction) std::cout << "Unimplemented Instruction: " << instruction << std::endl; exit(1);
+#define PRINT(instruction) std::cout << "Instruction: " << instruction << std::endl;
 
-#define INSTRUCTION_PRINT(instruction) std::cout << instruction << std::endl;
-
-CPU::CPU()
+CPU::CPU(MMU* mmu)
 {
+	A = 0x10;
+	F = 0x00;
+	B = 0xFF;
+	C = 0x13;
+	D = 0x00;
+	E = 0xC1;
+	H = 0x84;
+	L = 0x03;
+
 	PC = 0x100;
 	SP = 0xFFFE;
 
-	AF.A = 0x1;
-	AF.F = 0x0;
-	BC.B = 0xFF;
-	BC.C = 0x13;
-	DE.D = 0x0;
-	DE.E = 0xC1;
-	HL.H = 0x84;
-	HL.L = 0x03;
+	this->mmu = mmu;
 }
+
+void CPU::Jump(int flag = 0)
+{
+	PC = mmu->ReadShort(PC);
+	AF = mmu->ReadShort(PC);;
+}
+
+uint8_t CPU::Add(uint8_t operand1, uint8_t operand2)
+{
+	uint8_t result = operand1 + operand2;
+
+	F.Z = (result == 0);
+	F.N = 0;
+	F.H = ((operand1 & 0xF) + (operand2 & 0xF)) > 0xF;
+	F.C = (result < operand1);
+	return result;
+}
+
 
 void CPU::ExecuteInstruction(uint8_t opcode)
 {
-
 	switch (opcode)
 	{
-	case 0x00:
-		INSTRUCTION_PRINT("NOP");
+	case 0x00: //NOP
 		break;
 	case 0x01:
-		INSTRUCTION_PRINT("LD BC, d16");
+		UNIMPLEMENTED("LD BC, d16");
 		break;
 	case 0x02:
-		INSTRUCTION_PRINT("LD (BC), A");
+		UNIMPLEMENTED("LD (BC), A");
 		break;
 	case 0x03:
-		INSTRUCTION_PRINT("INC BC");
+		UNIMPLEMENTED("INC BC");
 		break;
 	case 0x04:
-		INSTRUCTION_PRINT("INC B");
+		UNIMPLEMENTED("INC B");
 		break;
 	case 0x05:
-		INSTRUCTION_PRINT("DEC B");
+		UNIMPLEMENTED("DEC B");
 		break;
 	case 0x06:
-		INSTRUCTION_PRINT("LD B, d8");
+		UNIMPLEMENTED("LD B, d8");
 		break;
 	case 0x07:
-		INSTRUCTION_PRINT("RLCA");
+		UNIMPLEMENTED("RLCA");
 		break;
 	case 0x08:
-		INSTRUCTION_PRINT("LD (a16), SP");
+		UNIMPLEMENTED("LD (a16), SP");
 		break;
 	case 0x09:
-		INSTRUCTION_PRINT("ADD HL, BC");
+		UNIMPLEMENTED("ADD HL, BC");
 		break;
 	case 0x0A:
-		INSTRUCTION_PRINT("LD A, (BC)");
+		UNIMPLEMENTED("LD A, (BC)");
 		break;
 	case 0x0B:
-		INSTRUCTION_PRINT("DEC BC");
+		UNIMPLEMENTED("DEC BC");
 		break;
 	case 0x0C:
-		INSTRUCTION_PRINT("INC C");
+		UNIMPLEMENTED("INC C");
 		break;
 	case 0x0D:
-		INSTRUCTION_PRINT("DEC C");
+		UNIMPLEMENTED("DEC C");
 		break;
 	case 0x0E:
-		INSTRUCTION_PRINT("LD C, d8");
+		UNIMPLEMENTED("LD C, d8");
 		break;
 	case 0x0F:
-		INSTRUCTION_PRINT("RRCA");
+		UNIMPLEMENTED("RRCA");
 		break;
 	case 0x10:
-		INSTRUCTION_PRINT("STOP");
+		UNIMPLEMENTED("STOP");
 		break;
 	case 0x11:
-		INSTRUCTION_PRINT("LD DE, d16");
+		UNIMPLEMENTED("LD DE, d16");
 		break;
 	case 0x12:
-		INSTRUCTION_PRINT("LD (DE), A");
+		UNIMPLEMENTED("LD (DE), A");
 		break;
 	case 0x13:
-		INSTRUCTION_PRINT("INC DE");
+		UNIMPLEMENTED("INC DE");
 		break;
 	case 0x14:
-		INSTRUCTION_PRINT("INC D");
+		UNIMPLEMENTED("INC D");
 		break;
 	case 0x15:
-		INSTRUCTION_PRINT("DEC D");
+		UNIMPLEMENTED("DEC D");
 		break;
 	case 0x16:
-		INSTRUCTION_PRINT("LD D, d8");
+		UNIMPLEMENTED("LD D, d8");
 		break;
 	case 0x17:
-		INSTRUCTION_PRINT("RLA");
+		UNIMPLEMENTED("RLA");
 		break;
 	case 0x18:
-		INSTRUCTION_PRINT("JR r8");
+		UNIMPLEMENTED("JR r8");
 		break;
 	case 0x19:
-		INSTRUCTION_PRINT("ADD HL, DE");
+		UNIMPLEMENTED("ADD HL, DE");
 		break;
 	case 0x1A:
-		INSTRUCTION_PRINT("LD A, (DE)");
+		UNIMPLEMENTED("LD A, (DE)");
 		break;
 	case 0x1B:
-		INSTRUCTION_PRINT("DEC DE");
+		UNIMPLEMENTED("DEC DE");
 		break;
 	case 0x1C:
-		INSTRUCTION_PRINT("INC E");
+		UNIMPLEMENTED("INC E");
 		break;
 	case 0x1D:
-		INSTRUCTION_PRINT("DEC E");
+		UNIMPLEMENTED("DEC E");
 		break;
 	case 0x1E:
-		INSTRUCTION_PRINT("LD E, d8");
+		UNIMPLEMENTED("LD E, d8");
 		break;
 	case 0x1F:
-		INSTRUCTION_PRINT("RRA");
+		UNIMPLEMENTED("RRA");
 		break;
 	case 0x20:
-		INSTRUCTION_PRINT("JR NZ, r8");
+		UNIMPLEMENTED("JR NZ, r8");
 		break;
 	case 0x21:
-		INSTRUCTION_PRINT("LD HL, d16");
+		UNIMPLEMENTED("LD HL, d16");
 		break;
 	case 0x22:
-		INSTRUCTION_PRINT("LD (HL+), A");
+		UNIMPLEMENTED("LD (HL+), A");
 		break;
 	case 0x23:
-		INSTRUCTION_PRINT("INC HL");
+		UNIMPLEMENTED("INC HL");
 		break;
 	case 0x24:
-		INSTRUCTION_PRINT("INC H");
+		UNIMPLEMENTED("INC H");
 		break;
 	case 0x25:
-		INSTRUCTION_PRINT("DEC H");
+		UNIMPLEMENTED("DEC H");
 		break;
 	case 0x26:
-		INSTRUCTION_PRINT("LD H, d8");
+		UNIMPLEMENTED("LD H, d8");
 		break;
 	case 0x27:
-		INSTRUCTION_PRINT("DAA");
+		UNIMPLEMENTED("DAA");
 		break;
 	case 0x28:
-		INSTRUCTION_PRINT("JR Z, r8");
+		UNIMPLEMENTED("JR Z, r8");
 		break;
 	case 0x29:
-		INSTRUCTION_PRINT("ADD HL, HL");
+		UNIMPLEMENTED("ADD HL, HL");
 		break;
 	case 0x2A:
-		INSTRUCTION_PRINT("LD A, (HL+)");
+		UNIMPLEMENTED("LD A, (HL+)");
 		break;
 	case 0x2B:
-		INSTRUCTION_PRINT("DEC HL");
+		UNIMPLEMENTED("DEC HL");
 		break;
 	case 0x2C:
-		INSTRUCTION_PRINT("INC L");
+		UNIMPLEMENTED("INC L");
 		break;
 	case 0x2D:
-		INSTRUCTION_PRINT("DEC L");
+		UNIMPLEMENTED("DEC L");
 		break;
 	case 0x2E:
-		INSTRUCTION_PRINT("LD L, d8");
+		UNIMPLEMENTED("LD L, d8");
 		break;
 	case 0x2F:
-		INSTRUCTION_PRINT("CPL");
+		UNIMPLEMENTED("CPL");
 		break;
 	case 0x30:
-		INSTRUCTION_PRINT("JR NC, r8");
+		UNIMPLEMENTED("JR NC, r8");
 		break;
 	case 0x31:
-		INSTRUCTION_PRINT("LD SP, d16");
+		UNIMPLEMENTED("LD SP, d16");
 		break;
 	case 0x32:
-		INSTRUCTION_PRINT("LD (HL-), A");
+		UNIMPLEMENTED("LD (HL-), A");
 		break;
 	case 0x33:
-		INSTRUCTION_PRINT("INC SP");
+		UNIMPLEMENTED("INC SP");
 		break;
 	case 0x34:
-		INSTRUCTION_PRINT("INC (HL)");
+		UNIMPLEMENTED("INC (HL)");
 		break;
 	case 0x35:
-		INSTRUCTION_PRINT("DEC (HL)");
+		UNIMPLEMENTED("DEC (HL)");
 		break;
 	case 0x36:
-		INSTRUCTION_PRINT("LD (HL), d8");
+		UNIMPLEMENTED("LD (HL), d8");
 		break;
 	case 0x37:
-		INSTRUCTION_PRINT("SCF");
+		UNIMPLEMENTED("SCF");
 		break;
 	case 0x38:
-		INSTRUCTION_PRINT("JR C, r8");
+		UNIMPLEMENTED("JR C, r8");
 		break;
 	case 0x39:
-		INSTRUCTION_PRINT("ADD HL, SP");
+		UNIMPLEMENTED("ADD HL, SP");
 		break;
 	case 0x3A:
-		INSTRUCTION_PRINT("LD A, (HL-)");
+		UNIMPLEMENTED("LD A, (HL-)");
 		break;
 	case 0x3B:
-		INSTRUCTION_PRINT("DEC SP");
+		UNIMPLEMENTED("DEC SP");
 		break;
 	case 0x3C:
-		INSTRUCTION_PRINT("INC A");
+		UNIMPLEMENTED("INC A");
 		break;
 	case 0x3D:
-		INSTRUCTION_PRINT("DEC A");
+		UNIMPLEMENTED("DEC A");
 		break;
 	case 0x3E:
-		INSTRUCTION_PRINT("LD A, d8");
+		UNIMPLEMENTED("LD A, d8");
 		break;
 	case 0x3F:
-		INSTRUCTION_PRINT("CCF");
+		UNIMPLEMENTED("CCF");
 		break;
 	case 0x40:
-		INSTRUCTION_PRINT("LD B, B");
+		PRINT("LD B, B");
 		break;
 	case 0x41:
-		INSTRUCTION_PRINT("LD B, C");
+		PRINT("LD B, C")
+		B = C;
 		break;
 	case 0x42:
-		INSTRUCTION_PRINT("LD B, D");
+		PRINT("LD B, D");
+		B = D;
 		break;
 	case 0x43:
-		INSTRUCTION_PRINT("LD B, E");
+		PRINT("LD B, E");
+		B = E;
 		break;
 	case 0x44:
-		INSTRUCTION_PRINT("LD B, H");
+		PRINT("LD B, H");
+		B = H;
 		break;
 	case 0x45:
-		INSTRUCTION_PRINT("LD B, L");
+		PRINT("LD B, L");
+		B = L;
 		break;
 	case 0x46:
-		INSTRUCTION_PRINT("LD B, (HL)");
+		PRINT("LD B, (HL)");
+		B = mmu->ReadByte(HL);
 		break;
 	case 0x47:
-		INSTRUCTION_PRINT("LD B, A");
+		PRINT("LD B, A");
+		B = A;
 		break;
 	case 0x48:
-		INSTRUCTION_PRINT("LD C, B");
+		PRINT("LD C, B");
+		C = B;
 		break;
 	case 0x49:
-		INSTRUCTION_PRINT("LD C, C");
+		PRINT("LD C, C");
 		break;
 	case 0x4A:
-		INSTRUCTION_PRINT("LD C, D");
+		PRINT("LD C, D");
+		C = D;
 		break;
 	case 0x4B:
-		INSTRUCTION_PRINT("LD C, E");
+		PRINT("LD C, E");
+		C = E;
 		break;
 	case 0x4C:
-		INSTRUCTION_PRINT("LD C, H");
+		PRINT("LD C, H");
+		C = H;
 		break;
 	case 0x4D:
-		INSTRUCTION_PRINT("LD C, L");
+		PRINT("LD C, L");
+		C = L;
 		break;
 	case 0x4E:
-		INSTRUCTION_PRINT("LD C, (HL)");
+		PRINT("LD C, (HL)");
+		C = mmu->ReadByte(HL);
 		break;
 	case 0x4F:
-		INSTRUCTION_PRINT("LD C, A");
+		PRINT("LD C, A");
+		C = A;
 		break;
 	case 0x50:
-		INSTRUCTION_PRINT("LD D, B");
+		PRINT("LD D, B");
+		D = B;
 		break;
 	case 0x51:
-		INSTRUCTION_PRINT("LD D, C");
+		PRINT("LD D, C");
+		D = C;
 		break;
 	case 0x52:
-		INSTRUCTION_PRINT("LD D, D");
+		PRINT("LD D, D");
 		break;
 	case 0x53:
-		INSTRUCTION_PRINT("LD D, E");
-		break;
+		PRINT("LD D, E");
+		D = E;
 	case 0x54:
-		INSTRUCTION_PRINT("LD D, H");
+		PRINT("LD D, H");
+		D = H;
 		break;
 	case 0x55:
-		INSTRUCTION_PRINT("LD D, L");
+		PRINT("LD D, L");
+		D = L;
 		break;
 	case 0x56:
-		INSTRUCTION_PRINT("LD D, (HL)");
+		PRINT("LD D, (HL)");
+		D = mmu->ReadByte(HL);
 		break;
 	case 0x57:
-		INSTRUCTION_PRINT("LD D, A");
+		PRINT("LD D, A");
+		D = A;
 		break;
 	case 0x58:
-		INSTRUCTION_PRINT("LD E, B");
+		PRINT("LD E, B");
+		E = B;
 		break;
 	case 0x59:
-		INSTRUCTION_PRINT("LD E, C");
+		PRINT("LD E, C");
+		E = C;
 		break;
 	case 0x5A:
-		INSTRUCTION_PRINT("LD E, D");
+		PRINT("LD E, D");
+		E = D;
 		break;
 	case 0x5B:
-		INSTRUCTION_PRINT("LD E, E");
+		PRINT("LD E, E");
 		break;
 	case 0x5C:
-		INSTRUCTION_PRINT("LD E, H");
+		PRINT("LD E, H");
+		E = H;
 		break;
 	case 0x5D:
-		INSTRUCTION_PRINT("LD E, L");
+		PRINT("LD E, L");
+		E = L;
 		break;
 	case 0x5E:
-		INSTRUCTION_PRINT("LD E, (HL)");
+		PRINT("LD E, (HL)");
+		E = mmu->ReadByte(HL);
 		break;
 	case 0x5F:
-		INSTRUCTION_PRINT("LD E, A");
+		PRINT("LD E, A");
+		E = A;
 		break;
 	case 0x60:
-		INSTRUCTION_PRINT("LD H, B");
+		PRINT("LD H, B");
+		H = B;
 		break;
 	case 0x61:
-		INSTRUCTION_PRINT("LD H, C");
+		PRINT("LD H, C");
+		H = C;
 		break;
 	case 0x62:
-		INSTRUCTION_PRINT("LD H, D");
+		PRINT("LD H, D");
+		H = D;
 		break;
 	case 0x63:
-		INSTRUCTION_PRINT("LD H, E");
+		PRINT("LD H, E");
+		H = E;
 		break;
 	case 0x64:
-		INSTRUCTION_PRINT("LD H, H");
+		PRINT("LD H, H");
 		break;
 	case 0x65:
-		INSTRUCTION_PRINT("LD H, L");
+		PRINT("LD H, L");
+		H = L;
 		break;
 	case 0x66:
-		INSTRUCTION_PRINT("LD H, (HL)");
+		PRINT("LD H, (HL)");
+		H = mmu->ReadByte(HL);
 		break;
 	case 0x67:
-		INSTRUCTION_PRINT("LD H, A");
+		PRINT("LD H, A");
+		H = A;
 		break;
 	case 0x68:
-		INSTRUCTION_PRINT("LD L, B");
+		PRINT("LD L, B");
+		L = B;
 		break;
 	case 0x69:
-		INSTRUCTION_PRINT("LD L, C");
+		PRINT("LD L, C");
+		L = C;
 		break;
 	case 0x6A:
-		INSTRUCTION_PRINT("LD L, D");
+		PRINT("LD L, D");
+		L = D;
 		break;
 	case 0x6B:
-		INSTRUCTION_PRINT("LD L, E");
+		PRINT("LD L, E");
+		L = E;
 		break;
 	case 0x6C:
-		INSTRUCTION_PRINT("LD L, H");
+		PRINT("LD L, H");
+		L = H;
 		break;
 	case 0x6D:
-		INSTRUCTION_PRINT("LD L, L");
+		PRINT("LD L, L");
 		break;
 	case 0x6E:
-		INSTRUCTION_PRINT("LD L, (HL)");
+		PRINT("LD L, (HL)");
+		L = mmu->ReadByte(HL);
 		break;
 	case 0x6F:
-		INSTRUCTION_PRINT("LD L, A");
+		PRINT("LD L, A");
+		L = A;
 		break;
 	case 0x70:
-		INSTRUCTION_PRINT("LD (HL), B");
+		PRINT("LD (HL), B");
+		mmu->WriteByte(HL, B);
 		break;
 	case 0x71:
-		INSTRUCTION_PRINT("LD (HL), C");
+		PRINT("LD (HL), C");
+		mmu->WriteByte(HL, C);
 		break;
 	case 0x72:
-		INSTRUCTION_PRINT("LD (HL), D");
+		PRINT("LD (HL), D");
+		mmu->WriteByte(HL, D);
 		break;
 	case 0x73:
-		INSTRUCTION_PRINT("LD (HL), E");
+		PRINT("LD (HL), E");
+		mmu->WriteByte(HL, E);
 		break;
 	case 0x74:
-		INSTRUCTION_PRINT("LD (HL), H");
+		PRINT("LD (HL), H");
+		mmu->WriteByte(HL, H);
 		break;
 	case 0x75:
-		INSTRUCTION_PRINT("LD (HL), L");
+		PRINT("LD (HL), L");
+		mmu->WriteByte(HL, L);
 		break;
-	case 0x76:
-		INSTRUCTION_PRINT("HALT");
-		break;
+	case 0x76: //what the fuck
+		UNIMPLEMENTED("HALT");
 	case 0x77:
-		INSTRUCTION_PRINT("LD (HL), A");
+		PRINT("LD (HL), A");
+		mmu->WriteByte(HL, A);
 		break;
 	case 0x78:
-		INSTRUCTION_PRINT("LD A, B");
+		PRINT("LD A, B");
+		A = B;
 		break;
 	case 0x79:
-		INSTRUCTION_PRINT("LD A, C");
+		PRINT("LD A, C");
+		A = C;
 		break;
 	case 0x7A:
-		INSTRUCTION_PRINT("LD A, D");
+		PRINT("LD A, D");
+		A = D;
 		break;
 	case 0x7B:
-		INSTRUCTION_PRINT("LD A, E");
+		PRINT("LD A, E");
+		A = E;
 		break;
 	case 0x7C:
-		INSTRUCTION_PRINT("LD A, H");
+		PRINT("LD A, H");
+		A = H;
 		break;
 	case 0x7D:
-		INSTRUCTION_PRINT("LD A, L");
+		PRINT("LD A, L");
+		A = L;
 		break;
 	case 0x7E:
-		INSTRUCTION_PRINT("LD A, (HL)");
+		PRINT("LD A, (HL)");
+		A = mmu->ReadByte(HL);
 		break;
 	case 0x7F:
-		INSTRUCTION_PRINT("LD A, A");
+		PRINT("LD A, A");
 		break;
 	case 0x80:
-		INSTRUCTION_PRINT("ADD A, B");
+		PRINT("ADD A, B");
+		A += B;
 		break;
 	case 0x81:
-		INSTRUCTION_PRINT("ADD A, C");
+		PRINT("ADD A, C");
+		A += C;
 		break;
 	case 0x82:
-		INSTRUCTION_PRINT("ADD A, D");
+		PRINT("ADD A, D");
+		A += D;
 		break;
 	case 0x83:
-		INSTRUCTION_PRINT("ADD A, E");
+		PRINT("ADD A, E");
+		A += E;
 		break;
 	case 0x84:
-		INSTRUCTION_PRINT("ADD A, H");
+		PRINT("ADD A, H");
+		A += H;
 		break;
 	case 0x85:
-		INSTRUCTION_PRINT("ADD A, L");
+		PRINT("ADD A, L");
+		A += L;
 		break;
 	case 0x86:
-		INSTRUCTION_PRINT("ADD A, (HL)");
+		PRINT("ADD A, (HL)");
+		A += mmu->ReadByte(HL);
 		break;
 	case 0x87:
-		INSTRUCTION_PRINT("ADD A, A");
+		PRINT("ADD A, A");
+		A += A;
 		break;
 	case 0x88:
-		INSTRUCTION_PRINT("ADC A, B");
+		PRINT("ADC A, B");
+
 		break;
 	case 0x89:
-		INSTRUCTION_PRINT("ADC A, C");
+		UNIMPLEMENTED("ADC A, C");
 		break;
 	case 0x8A:
-		INSTRUCTION_PRINT("ADC A, D");
+		UNIMPLEMENTED("ADC A, D");
 		break;
 	case 0x8B:
-		INSTRUCTION_PRINT("ADC A, E");
+		UNIMPLEMENTED("ADC A, E");
 		break;
 	case 0x8C:
-		INSTRUCTION_PRINT("ADC A, H");
+		UNIMPLEMENTED("ADC A, H");
 		break;
 	case 0x8D:
-		INSTRUCTION_PRINT("ADC A, L");
+		UNIMPLEMENTED("ADC A, L");
 		break;
 	case 0x8E:
-		INSTRUCTION_PRINT("ADC A, (HL)");
+		UNIMPLEMENTED("ADC A, (HL)");
 		break;
 	case 0x8F:
-		INSTRUCTION_PRINT("ADC A, A");
+		UNIMPLEMENTED("ADC A, A");
 		break;
 	case 0x90:
-		INSTRUCTION_PRINT("SUB B");
+		UNIMPLEMENTED("SUB B");
 		break;
 	case 0x91:
-		INSTRUCTION_PRINT("SUB C");
+		UNIMPLEMENTED("SUB C");
 		break;
 	case 0x92:
-		INSTRUCTION_PRINT("SUB D");
+		UNIMPLEMENTED("SUB D");
 		break;
 	case 0x93:
-		INSTRUCTION_PRINT("SUB E");
+		UNIMPLEMENTED("SUB E");
 		break;
 	case 0x94:
-		INSTRUCTION_PRINT("SUB H");
+		UNIMPLEMENTED("SUB H");
 		break;
 	case 0x95:
-		INSTRUCTION_PRINT("SUB L");
+		UNIMPLEMENTED("SUB L");
 		break;
 	case 0x96:
-		INSTRUCTION_PRINT("SUB (HL)");
+		UNIMPLEMENTED("SUB (HL)");
 		break;
 	case 0x97:
-		INSTRUCTION_PRINT("SUB A");
+		UNIMPLEMENTED("SUB A");
 		break;
 	case 0x98:
-		INSTRUCTION_PRINT("SBC A, B");
+		UNIMPLEMENTED("SBC A, B");
 		break;
 	case 0x99:
-		INSTRUCTION_PRINT("SBC A, C");
+		UNIMPLEMENTED("SBC A, C");
 		break;
 	case 0x9A:
-		INSTRUCTION_PRINT("SBC A, D");
+		UNIMPLEMENTED("SBC A, D");
 		break;
 	case 0x9B:
-		INSTRUCTION_PRINT("SBC A, E");
+		UNIMPLEMENTED("SBC A, E");
 		break;
 	case 0x9C:
-		INSTRUCTION_PRINT("SBC A, H");
+		UNIMPLEMENTED("SBC A, H");
 		break;
 	case 0x9D:
-		INSTRUCTION_PRINT("SBC A, L");
+		UNIMPLEMENTED("SBC A, L");
 		break;
 	case 0x9E:
-		INSTRUCTION_PRINT("SBC A, (HL)");
+		UNIMPLEMENTED("SBC A, (HL)");
 		break;
 	case 0x9F:
-		INSTRUCTION_PRINT("SBC A, A");
+		UNIMPLEMENTED("SBC A, A");
 		break;
 	case 0xA0:
-		INSTRUCTION_PRINT("AND B");
+		UNIMPLEMENTED("AND B");
 		break;
 	case 0xA1:
-		INSTRUCTION_PRINT("AND C");
+		UNIMPLEMENTED("AND C");
 		break;
 	case 0xA2:
-		INSTRUCTION_PRINT("AND D");
+		UNIMPLEMENTED("AND D");
 		break;
 	case 0xA3:
-		INSTRUCTION_PRINT("AND E");
+		UNIMPLEMENTED("AND E");
 		break;
 	case 0xA4:
-		INSTRUCTION_PRINT("AND H");
+		UNIMPLEMENTED("AND H");
 		break;
 	case 0xA5:
-		INSTRUCTION_PRINT("AND L");
+		UNIMPLEMENTED("AND L");
 		break;
 	case 0xA6:
-		INSTRUCTION_PRINT("AND (HL)");
+		UNIMPLEMENTED("AND (HL)");
 		break;
 	case 0xA7:
-		INSTRUCTION_PRINT("AND A");
+		UNIMPLEMENTED("AND A");
 		break;
 	case 0xA8:
-		INSTRUCTION_PRINT("XOR B");
+		UNIMPLEMENTED("XOR B");
 		break;
 	case 0xA9:
-		INSTRUCTION_PRINT("XOR C");
+		UNIMPLEMENTED("XOR C");
 		break;
 	case 0xAA:
-		INSTRUCTION_PRINT("XOR D");
+		UNIMPLEMENTED("XOR D");
 		break;
 	case 0xAB:
-		INSTRUCTION_PRINT("XOR E");
+		UNIMPLEMENTED("XOR E");
 		break;
 	case 0xAC:
-		INSTRUCTION_PRINT("XOR H");
+		UNIMPLEMENTED("XOR H");
 		break;
 	case 0xAD:
-		INSTRUCTION_PRINT("XOR L");
+		UNIMPLEMENTED("XOR L");
 		break;
 	case 0xAE:
-		INSTRUCTION_PRINT("XOR (HL)");
+		UNIMPLEMENTED("XOR (HL)");
 		break;
 	case 0xAF:
-		INSTRUCTION_PRINT("XOR A");
+		UNIMPLEMENTED("XOR A");
 		break;
 	case 0xB0:
-		INSTRUCTION_PRINT("OR B");
+		UNIMPLEMENTED("OR B");
 		break;
 	case 0xB1:
-		INSTRUCTION_PRINT("OR C");
+		UNIMPLEMENTED("OR C");
 		break;
 	case 0xB2:
-		INSTRUCTION_PRINT("OR D");
+		UNIMPLEMENTED("OR D");
 		break;
 	case 0xB3:
-		INSTRUCTION_PRINT("OR E");
+		UNIMPLEMENTED("OR E");
 		break;
 	case 0xB4:
-		INSTRUCTION_PRINT("OR H");
+		UNIMPLEMENTED("OR H");
 		break;
 	case 0xB5:
-		INSTRUCTION_PRINT("OR L");
+		UNIMPLEMENTED("OR L");
 		break;
 	case 0xB6:
-		INSTRUCTION_PRINT("OR (HL)");
+		UNIMPLEMENTED("OR (HL)");
 		break;
 	case 0xB7:
-		INSTRUCTION_PRINT("OR A");
+		UNIMPLEMENTED("OR A");
 		break;
 	case 0xB8:
-		INSTRUCTION_PRINT("CP B");
+		UNIMPLEMENTED("CP B");
 		break;
 	case 0xB9:
-		INSTRUCTION_PRINT("CP C");
+		UNIMPLEMENTED("CP C");
 		break;
 	case 0xBA:
-		INSTRUCTION_PRINT("CP D");
+		UNIMPLEMENTED("CP D");
 		break;
 	case 0xBB:
-		INSTRUCTION_PRINT("CP E");
+		UNIMPLEMENTED("CP E");
 		break;
 	case 0xBC:
-		INSTRUCTION_PRINT("CP H");
+		UNIMPLEMENTED("CP H");
 		break;
 	case 0xBD:
-		INSTRUCTION_PRINT("CP L");
+		UNIMPLEMENTED("CP L");
 		break;
 	case 0xBE:
-		INSTRUCTION_PRINT("CP (HL)");
+		UNIMPLEMENTED("CP (HL)");
 		break;
 	case 0xBF:
-		INSTRUCTION_PRINT("CP A");
+		UNIMPLEMENTED("CP A");
 		break;
 	case 0xC0:
-		INSTRUCTION_PRINT("RET NZ");
+		UNIMPLEMENTED("RET NZ");
 		break;
 	case 0xC1:
-		INSTRUCTION_PRINT("POP BC");
+		UNIMPLEMENTED("POP BC");
 		break;
-	case 0xC2: //double check the next two
-		INSTRUCTION_PRINT("JP NZ, 0x%04X", (opcode[2] << 8) | opcode[1]);
-		break;
-	case 0xC3:
-		INSTRUCTION_PRINT("JP 0x%04X", (opcode[2] << 8) | opcode[1]);
+	case 0xC2: 
+		PRINT("JP NZ, nn");
+		//Jump_Flag();
+	case 0xC3: 
+		PRINT("JP nn");
+		PC = mmu->ReadShort(PC);
 		break;
 	case 0xC4:
-		INSTRUCTION_PRINT("CALL NZ, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("CALL NZ, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xC5:
-		INSTRUCTION_PRINT("PUSH BC");
+		UNIMPLEMENTED("PUSH BC");
 		break;
 	case 0xC6:
-		INSTRUCTION_PRINT("ADD A, 0x%02X", opcode[1]);
+		UNIMPLEMENTED("ADD A, 0x%02X", opcode[1]);
 		break;
 	case 0xC7:
-		INSTRUCTION_PRINT("RST 0x00");
+		UNIMPLEMENTED("RST 0x00");
 		break;
 	case 0xC8:
-		INSTRUCTION_PRINT("RET Z");
+		UNIMPLEMENTED("RET Z");
 		break;
 	case 0xC9:
-		INSTRUCTION_PRINT("RET");
+		UNIMPLEMENTED("RET");
 		break;
 	case 0xCA:
-		INSTRUCTION_PRINT("JP Z, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("JP Z, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xCB:
-		INSTRUCTION_PRINT("CB PREFIX");
+		UNIMPLEMENTED("CB PREFIX");
 		break;
-	case 0xCC:
-		INSTRUCTION_PRINT("CALL Z, 0x%04X", (opcode[2] << 8) | opcode[1]);
+	case 0xCC: //want to check these three
+		UNIMPLEMENTED("CALL Z, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xCD:
-		INSTRUCTION_PRINT("CALL 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("CALL 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xCE:
-		INSTRUCTION_PRINT("ADC A, 0x%02X", opcode[1]);
+		UNIMPLEMENTED("ADC A, 0x%02X", opcode[1]);
 		break;
 	case 0xCF:
-		INSTRUCTION_PRINT("RST 0x08");
+		UNIMPLEMENTED("RST 0x08");
 		break;
 	case 0xD0:
-		INSTRUCTION_PRINT("RET NC");
+		UNIMPLEMENTED("RET NC");
 		break;
 	case 0xD1:
-		INSTRUCTION_PRINT("POP DE");
+		UNIMPLEMENTED("POP DE");
 		break;
 	case 0xD2:
-		INSTRUCTION_PRINT("JP NC, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("JP NC, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xD4:
-		INSTRUCTION_PRINT("CALL NC, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("CALL NC, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xD5:
-		INSTRUCTION_PRINT("PUSH DE");
+		UNIMPLEMENTED("PUSH DE");
 		break;
 	case 0xD6:
-		INSTRUCTION_PRINT("SUB 0x%02X", opcode[1]);
+		UNIMPLEMENTED("SUB 0x%02X", opcode[1]);
 		break;
 	case 0xD7:
-		INSTRUCTION_PRINT("RST 0x10");
+		UNIMPLEMENTED("RST 0x10");
 		break;
 	case 0xD8:
-		INSTRUCTION_PRINT("RET C");
+		UNIMPLEMENTED("RET C");
 		break;
 	case 0xD9:
-		INSTRUCTION_PRINT("RETI");
+		UNIMPLEMENTED("RETI");
 		break;
 	case 0xDA:
-		INSTRUCTION_PRINT("JP C, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("JP C, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xDC:
-		INSTRUCTION_PRINT("CALL C, 0x%04X", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("CALL C, 0x%04X", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xDE:
-		INSTRUCTION_PRINT("SBC A, 0x%02X", opcode[1]);
+		UNIMPLEMENTED("SBC A, 0x%02X", opcode[1]);
 		break;
 	case 0xDF:
-		INSTRUCTION_PRINT("RST 0x18");
+		UNIMPLEMENTED("RST 0x18");
 		break;
 	case 0xE0:
-		INSTRUCTION_PRINT("LDH (0xFF00 + 0x%02X), A", opcode[1]);
+		UNIMPLEMENTED("LDH (0xFF00 + 0x%02X), A", opcode[1]);
 		break;
 	case 0xE1:
-		INSTRUCTION_PRINT("POP HL");
+		UNIMPLEMENTED("POP HL");
 		break;
 	case 0xE2:
-		INSTRUCTION_PRINT("LD (0xFF00 + C), A");
+		UNIMPLEMENTED("LD (0xFF00 + C), A");
 		break;
 	case 0xE5:
-		INSTRUCTION_PRINT("PUSH HL");
+		UNIMPLEMENTED("PUSH HL");
 		break;
 	case 0xE6:
-		INSTRUCTION_PRINT("AND 0x%02X", opcode[1]);
+		UNIMPLEMENTED("AND 0x%02X", opcode[1]);
 		break;
 	case 0xE7:
-		INSTRUCTION_PRINT("RST 0x20");
+		UNIMPLEMENTED("RST 0x20");
 		break;
 	case 0xE8:
-		INSTRUCTION_PRINT("ADD SP, 0x%02X", opcode[1]);
+		UNIMPLEMENTED("ADD SP, 0x%02X", opcode[1]);
 		break;
 	case 0xE9:
-		INSTRUCTION_PRINT("JP (HL)");
+		UNIMPLEMENTED("JP (HL)");
 		break;
 	case 0xEA:
-		INSTRUCTION_PRINT("LD (0x%04X), A", (opcode[2] << 8) | opcode[1]);
+		UNIMPLEMENTED("LD (0x%04X), A", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xEE:
-		INSTRUCTION_PRINT("XOR 0x%02X", opcode[1]);
+		UNIMPLEMENTED("XOR 0x%02X", opcode[1]);
 		break;
 	case 0xEF:
-		INSTRUCTION_PRINT("RST 0x28");
+		UNIMPLEMENTED("RST 0x28");
 		break;
 	case 0xF0:
-		INSTRUCTION_PRINT("LDH A, (0xFF00 + 0x%02X)", opcode[1]);
+		UNIMPLEMENTED("LDH A, (0xFF00 + 0x%02X)", opcode[1]);
 		break;
 	case 0xF1:
-		INSTRUCTION_PRINT("POP AF");
+		UNIMPLEMENTED("POP AF");
 		break;
 	case 0xF2:
-		INSTRUCTION_PRINT("LD A, (0xFF00 + C)");
+		UNIMPLEMENTED("LD A, (0xFF00 + C)");
 		break;
 	case 0xF3:
-		INSTRUCTION_PRINT("DI");
+		UNIMPLEMENTED("DI");
 		break;
 	case 0xF5:
-		INSTRUCTION_PRINT("PUSH AF");
+		UNIMPLEMENTED("PUSH AF");
 		break;
 	case 0xF6:
-		INSTRUCTION_PRINT("OR 0x%02X", opcode[1]);
+		UNIMPLEMENTED("OR 0x%02X", opcode[1]);
 		break;
 	case 0xF7:
-		INSTRUCTION_PRINT("RST 0x30");
+		UNIMPLEMENTED("RST 0x30");
 		break;
 	case 0xF8:
-		INSTRUCTION_PRINT("LD HL, SP + 0x%02X", opcode[1]);
+		UNIMPLEMENTED("LD HL, SP + 0x%02X", opcode[1]);
 		break;
 	case 0xF9:
-		INSTRUCTION_PRINT("LD SP, HL");
+		UNIMPLEMENTED("LD SP, HL");
 		break;
-	case 0xFA:
-		INSTRUCTION_PRINT("LD A, (0x%04X)", (opcode[2] << 8) | opcode[1]);
+	case 0xFA: //doubel check
+		UNIMPLEMENTED("LD A, (0x%04X)", (opcode[2] << 8) | opcode[1]);
 		break;
 	case 0xFB:
-		INSTRUCTION_PRINT("EI");
+		UNIMPLEMENTED("EI");
 		break;
 	case 0xFE:
-		INSTRUCTION_PRINT("CP 0x%02X", opcode[1]);
+		UNIMPLEMENTED("CP 0x%02X", opcode[1]);
 		break;
 	case 0xFF:
-		INSTRUCTION_PRINT("RST 0x38");
+		UNIMPLEMENTED("RST 0x38");
 		break;
 	}
 };
+

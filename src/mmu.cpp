@@ -34,7 +34,26 @@ void MMU::LoadROM(const char* path)
 	delete[] buffer;
 }
 
-uint8_t MMU::ReadMemory(uint16_t address)
+uint8_t MMU::ReadByte(uint16_t address)
 {
-	return address;
+	return memory[address];
+}
+
+uint16_t MMU::ReadShort(uint16_t address)
+{
+	//little endian
+	return ReadByte(address) | (ReadByte(address + 1) << 8);
+}
+
+void MMU::WriteByte(uint16_t address, uint8_t value)
+{
+
+	//copying sprites to OAM
+	//disabling rom
+	//timers
+	// //color palette
+	//need to check updating tile/sprite 
+	//switchable ROM banks
+
+	memory[address] = value;
 }

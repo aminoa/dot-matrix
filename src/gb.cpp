@@ -8,9 +8,9 @@
 
 GB::GB(const char* file_path)
 {
-	this->cpu = new CPU();
 	this->mmu = new MMU();
 	this->ppu = new PPU();
+	this->cpu = new CPU(mmu);
 	this->file_path = file_path;
 }
 
