@@ -1,6 +1,13 @@
+#pragma once
+
 #include "interrupts.h"
-#include "mmu.h"
-#include "cpu.h"
+
+Interrupts::Interrupts(MMU* mmu, CPU* cpu) 
+{ 
+    this->mmu = mmu; 
+    this->cpu = cpu;
+    this->IME = false;
+}
 
 void Interrupts::SetMasterFlag(bool state)  { IME = (int(state) << 0); }
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdint.h>
 class MMU
 {
@@ -13,7 +14,7 @@ public:
 
 	uint8_t memory[0xFFFF];
 
-	bool isHalted;
+	bool isHalted = false;
 
 	struct clock {
 		int t = 0;

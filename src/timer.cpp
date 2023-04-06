@@ -1,5 +1,11 @@
 #include "timer.h"
-#include "mmu.h"
+
+Timer::Timer(MMU* mmu, Interrupts* interrupts) {
+	this->mmu = mmu;
+	this->interrupts = interrupts;
+	div = 0;
+	tima = 0;
+}
 
 void Timer::Increment() {
     mmu->clock.t += mmu->clock.t_instr;
@@ -12,7 +18,7 @@ void Timer::Increment() {
         mmu->timer.div++;
     }
 
-    check();
+    Check();
 }
 
 void Timer::Check() {
@@ -37,8 +43,8 @@ void Timer::Check() {
         while (tima >= threshold) {
             tima -= threshold;
             if (mmu->timer.tima == 0xFF) {
-                mmu->timer.tima = mmu->read_byte(0xFF06);
-                interrupts->set_interrupt_flag(INTERRUPT_TIMER);
+                mmu->timer.tima = mmu->ReadByte(0xFF06);
+                interrupts->SetInterruptFlag(INTERRUPT_TIMER);
             }
             else {
                 mmu->timer.tima++;

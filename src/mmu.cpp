@@ -1,4 +1,10 @@
-#include "MMU.h"
+#pragma once
+#include "mmu.h"
+#include "ppu.h"
+//#include "cpu.h"
+//#include "ppu.h"
+//#include "timer.h"
+
 #include <iostream>
 
 MMU::MMU()
@@ -36,6 +42,17 @@ void MMU::LoadROM(const char* path)
 
 uint8_t MMU::ReadByte(uint16_t address)
 {
+
+	if (address == 0xFF00)
+	{
+		//joypad
+	}
+
+	if (address == 0xFF04) { return timer.div; }
+	if (address == 0xFF05) { return timer.tima; }
+	if (address == 0xFF06) { return timer.tma; }
+	if (address == 0xFF07) { return timer.tac; }
+
 	return memory[address];
 }
 
@@ -51,6 +68,17 @@ void MMU::WriteByte(uint16_t address, uint8_t value)
 	//copying sprites to OAM
 	//disabling rom
 	//timers
+
+	if (address >= 0xFEA0 || address < 0xFE00)
+	{
+		return;
+	}
+
+	else if (address == 0xFF04) { timer.div = 0; }
+	else if (address == 0xFF05) { timer.tima = value; }
+	else if (address == 0xFF06) { timer.tma = value; }
+	else if (address == 0xFF07) { timer.tac = value;}
+
 	// //color palette
 	//need to check updating tile/sprite 
 	//switchable ROM banks

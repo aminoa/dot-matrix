@@ -1,13 +1,18 @@
 #pragma once
 #include "mmu.h"
+#include "cpu.h"
 #include "interrupts.h"
+
+class Interrupts;
 
 class CPU
 {
 public:
 	CPU(MMU* mmu, Interrupts* interrupts);
 
-	void Jump(int flag = 0);
+	void Jump(bool condition);
+	void JumpAdd(bool condition);
+
 	uint8_t Add(uint8_t operand1, uint8_t operand2);
 	uint16_t Add(uint16_t operand1, uint16_t operand2);
 	uint8_t AddCarry(uint8_t operand1, uint8_t operand2);
@@ -30,8 +35,14 @@ public:
 	
 	uint8_t Swap(uint8_t operand);
 	void Bit(uint8_t bit, uint8_t operand);
+	
+	void Compare(uint8_t operand1, uint8_t operand2);
+	void Return(bool condition);
+	void Call(bool condition);
+
 
 	void ExecuteInstruction(uint8_t opcode);
+	void SetInterrupts(Interrupts* interrupts);
 
 	uint16_t PC;
 	uint16_t SP;
@@ -76,6 +87,7 @@ public:
 	};
 	
 	MMU* mmu;
+	Interrupts* interrupts;
 
 	//copied from NoobBoy
 	const uint8_t InstructionTicks[256] = {

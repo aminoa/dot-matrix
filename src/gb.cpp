@@ -1,31 +1,29 @@
 #include "gb.h"
-#include "cpu.h"
-#include "mmu.h"
-#include "timer.h"
-#include <stdint.h> 
-#include <fstream>
-#include <iostream>
-#include <vector>
 
 GB::GB(const char* file_path)
 {
-	mmu = new MMU();
-	interrupts = new Interrupts(mmu);
-	ppu = new PPU();
+	this->file_path = file_path;
 
-	cpu = new CPU(mmu, interrupts);
-	file_path = file_path;
+	mmu = new MMU();
+	cpu = new CPU(mmu, nullptr);
+	interrupts = new Interrupts(mmu, cpu);
+	cpu->SetInterrupts(interrupts);
+
+	//ppu = new PPU();
 	timer = new Timer(mmu, interrupts);
+	//joypad
 }
 
 void GB::Run()
 {
 	mmu->LoadROM(file_path);
 	mmu->clock.t_instr = 0;
-	bool interrupted = interrupts.Check();
 
 	while (true)
 	{
+		bool interrupted = interrupts->Check();
+		mmu->clock.t_instr = 0;
+
 		if (!interrupted)
 		{
 			uint8_t instruction = mmu->ReadByte(cpu->PC);
