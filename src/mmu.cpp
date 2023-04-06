@@ -57,3 +57,9 @@ void MMU::WriteByte(uint16_t address, uint8_t value)
 
 	memory[address] = value;
 }
+
+void MMU::WriteShort(uint16_t address, uint16_t value)
+{
+	WriteByte(address, value & 0xFF);
+	WriteByte(address + 1, value >> 8);
+}

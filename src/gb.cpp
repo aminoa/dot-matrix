@@ -1,6 +1,7 @@
-#include "GB.h"
-#include "CPU.h"
-#include "memory.h"
+#include "gb.h"
+#include "cpu.h"
+#include "mmu.h"
+#include "timer.h"
 #include <stdint.h> 
 #include <fstream>
 #include <iostream>
@@ -8,20 +9,31 @@
 
 GB::GB(const char* file_path)
 {
-	this->mmu = new MMU();
-	this->ppu = new PPU();
-	this->cpu = new CPU(mmu);
-	this->file_path = file_path;
+	mmu = new MMU();
+	interrupts = new Interrupts(mmu);
+	ppu = new PPU();
+
+	cpu = new CPU(mmu, interrupts);
+	file_path = file_path;
+	timer = new Timer(mmu, interrupts);
 }
 
-void GB::StartEmulation()
+void GB::Run()
 {
 	mmu->LoadROM(file_path);
+	mmu->clock.t_instr = 0;
+	bool interrupted = interrupts.Check();
 
 	while (true)
 	{
-		uint8_t instruction = mmu->ReadMemory(cpu->PC);
-		cpu->ExecuteInstruction(instruction);
+		if (!interrupted)
+		{
+			uint8_t instruction = mmu->ReadByte(cpu->PC);
+			cpu->PC++;
+			cpu->ExecuteInstruction(instruction);
+		}
+		timer->Increment();
+		//ppu->Step();
 	}
 }
 
@@ -34,7 +46,7 @@ int main(int argc, char** argv)
 	}
 
 	GB* gb = new GB(argv[1]);
-	gb->StartEmulation();
+	gb->Run();
 
 	return 0;
 }

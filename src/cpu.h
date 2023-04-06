@@ -1,11 +1,36 @@
 #pragma once
 #include "mmu.h"
+#include "interrupts.h"
+
 class CPU
 {
 public:
-	CPU(MMU* mmu);
-	uint8_t Add(uint8_t operand1, uint8_t operand2);
+	CPU(MMU* mmu, Interrupts* interrupts);
+
 	void Jump(int flag = 0);
+	uint8_t Add(uint8_t operand1, uint8_t operand2);
+	uint16_t Add(uint16_t operand1, uint16_t operand2);
+	uint8_t AddCarry(uint8_t operand1, uint8_t operand2);
+	uint8_t Subtract(uint8_t operand1, uint8_t operand2);
+	uint8_t SubtractCarry(uint8_t operand1, uint8_t operand2);
+
+	uint8_t And(uint8_t operand1, uint8_t operand2);
+	uint8_t Or(uint8_t operand1, uint8_t operand2);
+	uint8_t Xor(uint8_t operand1, uint8_t operand2);
+	uint8_t Increment(uint8_t operand);
+	uint8_t Decrement(uint8_t operand);
+
+	uint8_t RotateLeft(uint8_t operand);
+	uint8_t RotateLeftCarry(uint8_t operand);
+	uint8_t RotateRight(uint8_t operand);
+	uint8_t RotateRightCarry(uint8_t operand);	
+	uint8_t ShiftLeft(uint8_t operand);
+	uint8_t ShiftRight(uint8_t operand);
+	uint8_t ShiftRightLogical(uint8_t operand);
+	
+	uint8_t Swap(uint8_t operand);
+	void Bit(uint8_t bit, uint8_t operand);
+
 	void ExecuteInstruction(uint8_t opcode);
 
 	uint16_t PC;
@@ -51,6 +76,25 @@ public:
 	};
 	
 	MMU* mmu;
-	
+
+	//copied from NoobBoy
+	const uint8_t InstructionTicks[256] = {
+		4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4,       // 0x0_
+		4, 12, 8, 8, 4, 4, 8, 4,  12, 8, 8, 8, 4, 4, 8, 4,      // 0x1_
+		0, 12, 8, 8, 4, 4, 8, 4,  0, 8, 8, 8, 4, 4, 8, 4,       // 0x2_
+		0, 12, 8, 8, 12, 12, 12, 4,  0, 8, 8, 8, 4, 4, 8, 4,    // 0x3_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x4_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x5_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x6_
+		8, 8, 8, 8, 8, 8, 4, 8,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x7_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x8_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0x9_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0xa_
+		4, 4, 4, 4, 4, 4, 8, 4,  4, 4, 4, 4, 4, 4, 8, 4,        // 0xb_
+		0, 12, 0, 16, 0, 16, 8, 16,  0, 16, 0, 0, 0, 24, 8, 16, // 0xc_
+		0, 12, 0, 0, 0, 16, 8, 16,  0, 16, 0, 0, 0, 0, 8, 16,   // 0xd_
+		12, 12, 8, 0, 0, 16, 8, 16,  16, 4, 16, 0, 0, 0, 8, 16, // 0xe_
+		12, 12, 8, 4, 0, 16, 8, 16,  12, 8, 16, 4, 0, 0, 8, 16  // 0xf_
+	};
 };
 
