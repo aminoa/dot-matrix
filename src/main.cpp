@@ -15,6 +15,6 @@ int main(int argc, char** argv)
 	}
 
 	GB* gb = new GB(argv[1]);
-
+	gb->run();
 	return 0;
 }
