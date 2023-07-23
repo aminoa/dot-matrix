@@ -6,14 +6,13 @@
 #include "consts.h"
 
 using std::vector; 
-using std::byte;
 
 class Cart
 {
 public:
 	Cart(const char* rom_path);
 
-	vector<byte> rom;
+	vector<u8> rom;
 
 	std::string title;
 	u8 type;

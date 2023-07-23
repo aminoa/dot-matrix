@@ -17,9 +17,8 @@ Cart::Cart(const char* rom_path)
 
 	//reading cartidge header metadata
 	title = std::string(reinterpret_cast<char*>(rom.data() + 0x134), 16);
-	type = u8(rom[0x147]);
-	rom_size = u8(rom[0x148]);
-	ram_size = u8(rom[0x149]);
-	version = u8(rom[0x14C]);
-
+	type = rom[0x147];
+	rom_size = rom[0x148];
+	ram_size = rom[0x149];
+	version = rom[0x14C];
 }
