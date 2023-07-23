@@ -5,16 +5,19 @@ GB::GB(const char* rom_path)
 {
 	this->rom_path = rom_path;
 	this->cart = new Cart(rom_path);
+	this->mmu = new MMU(cart);
+	this->cpu = new CPU(mmu);
 }
 
 void GB::run()
 {
-	std::cout << cart->title << std::endl;
-	std::cout << cart->type << std::endl;
+	std::cout << "Running " << this->cart->title << std::endl;
+
+	while (true)
+	{
+		u8 instruction = this->mmu->read(this->cpu->pc);
+		cpu->execute(instruction);
+		//cpu->pc++;
+		//cpu->
+	}
 }
-
-
-//void GB::load_rom()
-//{
-//	cart = new Cart(rom_path);
-//}
