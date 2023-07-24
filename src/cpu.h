@@ -9,6 +9,13 @@ public:
 
 	void execute(u8 opcode);
 
+	void increment(u8& reg);
+	void decrement(u8& reg);
+	void rlca();
+	void rrca();
+
+	void add(u16 val1, u16 val2);
+
 	u16 pc;
 	u16 sp;
 	MMU* mmu;

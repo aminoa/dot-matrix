@@ -15,7 +15,7 @@ void GB::run()
 
 	while (true)
 	{
-		u8 instruction = this->mmu->read(this->cpu->pc);
+		u8 instruction = this->mmu->read_byte(this->cpu->pc);
 		cpu->execute(instruction);
 		//cpu->pc++;
 		//cpu->
