@@ -16,6 +16,9 @@ public:
 
 	void add(u16 val1, u16 val2);
 
+	void pop(u16& reg);
+	void push(u16& reg);
+
 	u16 pc;
 	u16 sp;
 	MMU* mmu;

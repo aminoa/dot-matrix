@@ -4,6 +4,8 @@ MMU::MMU(Cart* cart)
 {
 	memory = std::vector<u8>(0xFFFF);
 	this->cart = cart;
+
+	// TODO: map cart rom to memory
 }
 
 u8 MMU::read_byte(u16 addr)

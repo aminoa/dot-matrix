@@ -14,6 +14,7 @@ CPU::CPU(MMU* mmu)
 
 }
 
+// instructions pre-increment pc for correct order evaluation
 void CPU::execute(u8 opcode)
 {
 	//need to check overloading different 1 or 2 bytes for some writes
@@ -25,21 +26,21 @@ void CPU::execute(u8 opcode)
 	{
 	// 8 bit load instructions
 	case 0x02: mmu->write_byte(BC, A); break;
-	case 0x06: B = mmu->read_byte(pc++); break;
+	case 0x06: B = mmu->read_byte(++pc); break;
 	case 0x0A: A = mmu->read_byte(BC); break;
-	case 0x0E: C = mmu->read_byte(pc++); break;
+	case 0x0E: C = mmu->read_byte(++pc); break;
 	case 0x12: mmu->write_byte(DE, A); break;
-	case 0x16: D = mmu->read_byte(pc++); break;
+	case 0x16: D = mmu->read_byte(++pc); break;
 	case 0x1A: A = mmu->read_byte(DE); break;
-	case 0x1E: E = mmu->read_byte(pc++); break;
+	case 0x1E: E = mmu->read_byte(++pc); break;
 	case 0x22: mmu->write_byte(HL, A); HL++; break;
-	case 0x26: H = mmu->read_byte(pc++); break;
+	case 0x26: H = mmu->read_byte(++pc); break;
 	case 0x2A: A = mmu->read_byte(HL); HL++; break;
-	case 0x2E: L = mmu->read_byte(pc++); break;
+	case 0x2E: L = mmu->read_byte(++pc); break;
 	case 0x32: mmu->write_byte(HL, A); HL--; break;
-	case 0x36: mmu->write_byte(HL, mmu->read_byte(pc++)); break;
+	case 0x36: mmu->write_byte(HL, mmu->read_byte(++pc)); break;
 	case 0x3A: A = mmu->read_byte(HL); HL--; break;
-	case 0x3E: A = mmu->read_byte(pc++); break;
+	case 0x3E: A = mmu->read_byte(++pc); break;
 
 	case 0x40: B = B; break;
 	case 0x41: B = C; break;
@@ -105,18 +106,43 @@ void CPU::execute(u8 opcode)
 	case 0x7E: A = mmu->read_byte(HL); break;
 	case 0x7F: A = A; break;
 
-	case 0xE0: mmu->write_byte(0xFF00 + mmu->read_byte(pc++), A); break;
+	case 0xE0: mmu->write_byte(0xFF00 + mmu->read_byte(++pc), A); break;
 	case 0xE2: mmu->write_byte(0xFF00 + C, A); break;
 
-	case 0xEA: mmu->write_byte(mmu->read_byte(pc++) + mmu->read_byte(pc++), A); break; //not sure if this is right
-	case 0xF0: A = mmu->read_byte(0xFF00 + mmu->read_byte(pc++)); break;
+	case 0xEA: mmu->write_byte(mmu->read_short(++pc), A); pc += 1;  break; 
+	case 0xF0: A = mmu->read_byte(0xFF00 + mmu->read_byte(++pc)); break;
 	case 0xF2: A = mmu->read_byte(0xFF00 + C); break;
-	case 0xFA: A = mmu->read_byte(mmu->read_byte(pc++) + mmu->read_byte(pc++)); break;
+	case 0xFA: A = mmu->read_byte(mmu->read_short(++pc)); pc += 1; break; 
 
 	// 16 bit load instructions
-	case 0x01: BC = mmu->read_short(pc++); pc++; break;
+	case 0x01: BC = mmu->read_short(++pc); pc++; break;
+	case 0x08: mmu->write_short(mmu->read_short(++pc), sp); pc += 1; break;
+	case 0x11: DE = mmu->read_short(++pc); pc++; break;
+	case 0x21: HL = mmu->read_short(++pc); pc++; break;
+	case 0x31: sp = mmu->read_short(++pc); pc++; break;
+	case 0xC1: pop(BC); break;
+	case 0xC5: push(BC); break;
+	case 0xD1: pop(DE); break;
+	case 0xD5: push(DE); break;
+	case 0xE1: pop(HL); break;
+	case 0xE5: push(HL); break;
+	case 0xF1: pop(AF); break;
+	case 0xF5: push(AF); break;
+	case 0xF8: HL = sp + mmu->read_byte(++pc); break;
+	case 0xF9: sp = HL; break;
 
-
+	// 8 bit arithmetic/logic instructions
+	case 0x04: increment(B); break;
+	case 0x05: decrement(B); break;
+	case 0x0C: increment(C); break;
+	case 0x0D: decrement(C); break;
+	case 0x14: increment(D); break;
+	case 0x15: decrement(D); break;
+	case 0x1C: increment(E); break;
+	case 0x1D: decrement(E); break;
+	case 0x24: increment(H); break;
+	case 0x25: decrement(H); break;
+	
 	//case 0x00: break;
 	//case 0x03: BC++; break;
 	//case 0x04: increment(B); break;
@@ -130,11 +156,11 @@ void CPU::execute(u8 opcode)
 	//case 0x0F: rrca(); break;
 
 	//case 0x10: break;
-	//case 0x11: DE = mmu->read(pc); pc += 2; break;
 
 	default:
 		break;
 	}
+	
 	pc += 1;
 }
 
@@ -182,4 +208,17 @@ void CPU::add(u16 val1, u16 val2)
 	F.H = ((val1 & 0x0FFF) + (val2 & 0x0FFF)) > 0x0FFF;
 	F.C = result > 0xFFFF;
 	A = result & 0xFF;
+}
+
+void CPU::pop(u16& reg)
+{
+	reg = mmu->read_short(sp);
+	sp += 2;
+}
+
+// not sure about this
+void CPU::push(u16& reg)
+{
+	sp -= 2;
+	reg = mmu->read_short(sp);
 }
