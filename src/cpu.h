@@ -14,7 +14,18 @@ public:
 	void rlca();
 	void rrca();
 
-	void add(u16 val1, u16 val2);
+	void add(u8 val);
+	void adc(u8 val);
+
+	void sub(u8 val);
+	void sbc(u8 val);
+
+	void _and(u8 val);
+	void _xor(u8 val);
+	void _or(u8 val);
+	void cp(u8 val);
+
+	//void add(u16 val1, u16 val2);
 
 	void pop(u16& reg);
 	void push(u16& reg);
