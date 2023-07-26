@@ -19,7 +19,7 @@ void CPU::execute(u8 opcode)
 {
 	//need to check overloading different 1 or 2 bytes for some writes
 	std::cout << OPCODE_NAMES[opcode] << std::endl;
-
+	u8 temp = 0;
 	//modify clock cycles here
 
 	switch (opcode)
@@ -144,7 +144,7 @@ void CPU::execute(u8 opcode)
 	case 0x25: dec(H); break;
 	case 0x2C: inc(L); break;
 	case 0x2D: dec(L); break;
-	case 0x34: u8 temp = mmu->read_byte(HL); inc(temp); mmu->write_byte(HL, temp); break;
+	case 0x34: temp = mmu->read_byte(HL); inc(temp); mmu->write_byte(HL, temp); break;
 	case 0x35: temp = mmu->read_byte(HL); dec(temp); mmu->write_byte(HL, temp); break;
 	case 0x3C: inc(A); break;
 	case 0x3D: dec(A); break;
@@ -238,9 +238,281 @@ void CPU::execute(u8 opcode)
 	case 0x3B: sp--; break;
 	case 0xE8: sp = -(unsigned int)mmu->read_byte(++pc) + sp; break;
 
-	// Rotate and shift instructions
+	// 8-bit shift, rotate and bit instructions
+	case 0x07: rlca(); break;
+	case 0x0F: rrca(); break;
+	case 0x17: rla(); break;
+	case 0x1F: rra(); break;
+	case 0xCB:
+	{
+		u8 cb_instruction = mmu->read_byte(++pc);
+		switch (cb_instruction)
+		{
+			case 0x00: rlc(B); break;
+			case 0x01: rlc(C); break;
+			case 0x02: rlc(D); break;
+			case 0x03: rlc(E); break;
+			case 0x04: rlc(H); break;
+			case 0x05: rlc(L); break;
+			case 0x06: temp = mmu->read_byte(HL); rlc(temp); mmu->write_byte(HL, temp); break;
+			case 0x07: rlc(A); break;
+			case 0x08: rrc(B); break;
+			case 0x09: rrc(C); break;
+			case 0x0A: rrc(D); break;
+			case 0x0B: rrc(E); break;
+			case 0x0C: rrc(H); break;
+			case 0x0D: rrc(L); break;
+			case 0x0E: temp = mmu->read_byte(HL); rrc(temp); mmu->write_byte(HL, temp); break;
+			case 0x0F: rrc(A); break;
+			case 0x10: rl(B); break;
+			case 0x11: rl(C); break;
+			case 0x12: rl(D); break;
+			case 0x13: rl(E); break;
+			case 0x14: rl(H); break;
+			case 0x15: rl(L); break;
+			case 0x16: temp = mmu->read_byte(HL); rl(temp); mmu->write_byte(HL, temp); break;
+			case 0x17: rl(A); break;
+			case 0x18: rr(B); break;
+			case 0x19: rr(C); break;
+			case 0x1A: rr(D); break;
+			case 0x1B: rr(E); break;
+			case 0x1C: rr(H); break;
+			case 0x1D: rr(L); break;
+			case 0x1E: temp = mmu->read_byte(HL); rr(temp); mmu->write_byte(HL, temp); break;
+			case 0x1F: rr(A); break;
 
+			case 0x20: sla(B); break;
+			case 0x21: sla(C); break;
+			case 0x22: sla(D); break;
+			case 0x23: sla(E); break;
+			case 0x24: sla(H); break;
+			case 0x25: sla(L); break;
+			case 0x26: temp = mmu->read_byte(HL); sla(temp); mmu->write_byte(HL, temp); break;
+			case 0x27: sla(A); break;
+			case 0x28: sra(B); break;
+			case 0x29: sra(C); break;
+			case 0x2A: sra(D); break;
+			case 0x2B: sra(E); break;
+			case 0x2C: sra(H); break;
+			case 0x2D: sra(L); break;
+			case 0x2E: temp = mmu->read_byte(HL); sra(temp); mmu->write_byte(HL, temp); break;
+			case 0x2F: sra(A); break;
+
+			case 0x30: swap(B); break;
+			case 0x31: swap(C); break;
+			case 0x32: swap(D); break;
+			case 0x33: swap(E); break;
+			case 0x34: swap(H); break;
+			case 0x35: swap(L); break;
+			case 0x36: temp = mmu->read_byte(HL); swap(temp); mmu->write_byte(HL, temp); break;
+			case 0x37: swap(A); break;
+			case 0x38: srl(B); break;
+			case 0x39: srl(C); break;
+			case 0x3A: srl(D); break;
+			case 0x3B: srl(E); break;
+			case 0x3C: srl(H); break;
+			case 0x3D: srl(L); break;
+			case 0x3E: temp = mmu->read_byte(HL); srl(temp); mmu->write_byte(HL, temp); break;
+
+			case 0x3F: srl(A); break;
+			case 0x40: bit(0, B); break;
+			case 0x41: bit(0, C); break;
+			case 0x42: bit(0, D); break;
+			case 0x43: bit(0, E); break;
+			case 0x44: bit(0, H); break;
+			case 0x45: bit(0, L); break;
+			case 0x46: temp = mmu->read_byte(HL); bit(0, temp); mmu->write_byte(HL, temp); break;
+			case 0x47: bit(0, A); break;
+			case 0x48: bit(1, B); break;
+			case 0x49: bit(1, C); break;
+			case 0x4A: bit(1, D); break;
+			case 0x4B: bit(1, E); break;
+			case 0x4C: bit(1, H); break;
+			case 0x4D: bit(1, L); break;
+			case 0x4E: temp = mmu->read_byte(HL); bit(1, temp); mmu->write_byte(HL, temp); break;
+			case 0x4F: bit(1, A); break;
+			case 0x50: bit(2, B); break;
+			case 0x51: bit(2, C); break;
+			case 0x52: bit(2, D); break;
+			case 0x53: bit(2, E); break;
+			case 0x54: bit(2, H); break;
+			case 0x55: bit(2, L); break;
+			case 0x56: temp = mmu->read_byte(HL); bit(2, temp); mmu->write_byte(HL, temp); break;
+			case 0x57: bit(2, A); break;
+			case 0x58: bit(3, B); break;
+			case 0x59: bit(3, C); break;
+			case 0x5A: bit(3, D); break;
+			case 0x5B: bit(3, E); break;
+			case 0x5C: bit(3, H); break;
+			case 0x5D: bit(3, L); break;
+			case 0x5E: temp = mmu->read_byte(HL); bit(3, temp); mmu->write_byte(HL, temp); break;
+			case 0x5F: bit(3, A); break;
+			case 0x60: bit(4, B); break;
+			case 0x61: bit(4, C); break;
+			case 0x62: bit(4, D); break;
+			case 0x63: bit(4, E); break;
+			case 0x64: bit(4, H); break;
+			case 0x65: bit(4, L); break;
+			case 0x66: temp = mmu->read_byte(HL); bit(4, temp); mmu->write_byte(HL, temp); break;
+			case 0x67: bit(4, A); break;
+			case 0x68: bit(5, B); break;
+			case 0x69: bit(5, C); break;
+			case 0x6A: bit(5, D); break;
+			case 0x6B: bit(5, E); break;
+			case 0x6C: bit(5, H); break;
+			case 0x6D: bit(5, L); break;
+			case 0x6E: temp = mmu->read_byte(HL); bit(5, temp); mmu->write_byte(HL, temp); break;
+			case 0x6F: bit(5, A); break;
+			case 0x70: bit(6, B); break;
+			case 0x71: bit(6, C); break;
+			case 0x72: bit(6, D); break;
+			case 0x73: bit(6, E); break;
+			case 0x74: bit(6, H); break;
+			case 0x75: bit(6, L); break;
+			case 0x76: temp = mmu->read_byte(HL); bit(6, temp); mmu->write_byte(HL, temp); break;
+			case 0x77: bit(6, A); break;
+			case 0x78: bit(7, B); break;
+			case 0x79: bit(7, C); break;
+			case 0x7A: bit(7, D); break;
+			case 0x7B: bit(7, E); break;
+			case 0x7C: bit(7, H); break;
+			case 0x7D: bit(7, L); break;
+			case 0x7E: temp = mmu->read_byte(HL); bit(7, temp); mmu->write_byte(HL, temp); break;
+			case 0x7F: bit(7, A); break;
 	
+			case 0x80: res(0, B); break;
+			case 0x81: res(0, C); break;
+			case 0x82: res(0, D); break;
+			case 0x83: res(0, E); break;
+			case 0x84: res(0, H); break;
+			case 0x85: res(0, L); break;
+			case 0x86: temp = mmu->read_byte(HL); res(0, temp); mmu->write_byte(HL, temp); break;
+			case 0x87: res(0, A); break;
+			case 0x88: res(1, B); break;
+			case 0x89: res(1, C); break;
+			case 0x8A: res(1, D); break;
+			case 0x8B: res(1, E); break;
+			case 0x8C: res(1, H); break;
+			case 0x8D: res(1, L); break;
+			case 0x8E: temp = mmu->read_byte(HL); res(1, temp); mmu->write_byte(HL, temp); break;
+			case 0x8F: res(1, A); break;
+			case 0x90: res(2, B); break;
+			case 0x91: res(2, C); break;
+			case 0x92: res(2, D); break;
+			case 0x93: res(2, E); break;
+			case 0x94: res(2, H); break;
+			case 0x95: res(2, L); break;
+			case 0x96: temp = mmu->read_byte(HL); res(2, temp); mmu->write_byte(HL, temp); break;
+			case 0x97: res(2, A); break;
+			case 0x98: res(3, B); break;
+			case 0x99: res(3, C); break;
+			case 0x9A: res(3, D); break;
+			case 0x9B: res(3, E); break;
+			case 0x9C: res(3, H); break;
+			case 0x9D: res(3, L); break;
+			case 0x9E: temp = mmu->read_byte(HL); res(3, temp); mmu->write_byte(HL, temp); break;
+			case 0x9F: res(3, A); break;
+			case 0xA0: res(4, B); break;
+			case 0xA1: res(4, C); break;
+			case 0xA2: res(4, D); break;
+			case 0xA3: res(4, E); break;
+			case 0xA4: res(4, H); break;
+			case 0xA5: res(4, L); break;
+			case 0xA6: temp = mmu->read_byte(HL); res(4, temp); mmu->write_byte(HL, temp); break;	
+			case 0xA7: res(4, A); break;
+			case 0xA8: res(5, B); break;
+			case 0xA9: res(5, C); break;
+			case 0xAA: res(5, D); break;
+			case 0xAB: res(5, E); break;
+			case 0xAC: res(5, H); break;
+			case 0xAD: res(5, L); break;
+			case 0xAE: temp = mmu->read_byte(HL); res(5, temp); mmu->write_byte(HL, temp); break;
+			case 0xAF: res(5, A); break;
+			case 0xB0: res(6, B); break;
+			case 0xB1: res(6, C); break;
+			case 0xB2: res(6, D); break;
+			case 0xB3: res(6, E); break;
+			case 0xB4: res(6, H); break;
+			case 0xB5: res(6, L); break;
+			case 0xB6: temp = mmu->read_byte(HL); res(6, temp); mmu->write_byte(HL, temp); break;
+			case 0xB7: res(6, A); break;
+			case 0xB8: res(7, B); break;
+			case 0xB9: res(7, C); break;
+			case 0xBA: res(7, D); break;
+			case 0xBB: res(7, E); break;
+			case 0xBC: res(7, H); break;
+			case 0xBD: res(7, L); break;
+			case 0xBE: temp = mmu->read_byte(HL); res(7, temp); mmu->write_byte(HL, temp); break;
+			case 0xBF: res(7, A); break;
+
+			case 0xC0: set(0, B); break;
+			case 0xC1: set(0, C); break;
+			case 0xC2: set(0, D); break;
+			case 0xC3: set(0, E); break;
+			case 0xC4: set(0, H); break;
+			case 0xC5: set(0, L); break;
+			case 0xC6: temp = mmu->read_byte(HL); set(0, temp); mmu->write_byte(HL, temp); break;
+			case 0xC7: set(0, A); break;
+			case 0xC8: set(1, B); break;
+			case 0xC9: set(1, C); break;
+			case 0xCA: set(1, D); break;
+			case 0xCB: set(1, E); break;
+			case 0xCC: set(1, H); break;
+			case 0xCD: set(1, L); break;
+			case 0xCE: temp = mmu->read_byte(HL); set(1, temp); mmu->write_byte(HL, temp); break;
+			case 0xCF: set(1, A); break;
+			case 0xD0: set(2, B); break;
+			case 0xD1: set(2, C); break;
+			case 0xD2: set(2, D); break;
+			case 0xD3: set(2, E); break;
+			case 0xD4: set(2, H); break;
+			case 0xD5: set(2, L); break;
+			case 0xD6: temp = mmu->read_byte(HL); set(2, temp); mmu->write_byte(HL, temp); break;
+			case 0xD7: set(2, A); break;
+			case 0xD8: set(3, B); break;
+			case 0xD9: set(3, C); break;
+			case 0xDA: set(3, D); break;
+			case 0xDB: set(3, E); break;
+			case 0xDC: set(3, H); break;
+			case 0xDD: set(3, L); break;
+			case 0xDE: temp = mmu->read_byte(HL); set(3, temp); mmu->write_byte(HL, temp); break;
+			case 0xDF: set(3, A); break;
+			case 0xE0: set(4, B); break;
+			case 0xE1: set(4, C); break;
+			case 0xE2: set(4, D); break;
+			case 0xE3: set(4, E); break;
+			case 0xE4: set(4, H); break;
+			case 0xE5: set(4, L); break;
+			case 0xE6: temp = mmu->read_byte(HL); set(4, temp); mmu->write_byte(HL, temp); break;
+			case 0xE7: set(4, A); break;
+			case 0xE8: set(5, B); break;
+			case 0xE9: set(5, C); break;
+			case 0xEA: set(5, D); break;
+			case 0xEB: set(5, E); break;
+			case 0xEC: set(5, H); break;
+			case 0xED: set(5, L); break;
+			case 0xEE: temp = mmu->read_byte(HL); set(5, temp); mmu->write_byte(HL, temp); break;
+			case 0xEF: set(5, A); break;
+			case 0xF0: set(6, B); break;
+			case 0xF1: set(6, C); break;
+			case 0xF2: set(6, D); break;
+			case 0xF3: set(6, E); break;
+			case 0xF4: set(6, H); break;
+			case 0xF5: set(6, L); break;
+			case 0xF6: temp = mmu->read_byte(HL); set(6, temp); mmu->write_byte(HL, temp); break;
+			case 0xF7: set(6, A); break;
+			case 0xF8: set(7, B); break;
+			case 0xF9: set(7, C); break;
+			case 0xFA: set(7, D); break;
+			case 0xFB: set(7, E); break;
+			case 0xFC: set(7, H); break;
+			case 0xFD: set(7, L); break;
+			case 0xFE: temp = mmu->read_byte(HL); set(7, temp); mmu->write_byte(HL, temp); break;
+			case 0xFF: set(7, A); break;	
+			default: break;
+		}
+		break;
+	}
 
 	//case 0x00: break;	
 	//case 0x03: BC++; break;
@@ -299,6 +571,90 @@ void CPU::rrca()
 	F.C = carry;
 }
 
+void CPU::rla()
+{
+	u8 carry = A >> 7;
+	A = (A << 1) | F.C;
+	F.Z = 0;
+	F.N = 0;
+	F.H = 0;
+	F.C = carry;
+}
+
+void CPU::rra()
+{
+	u8 carry = A & 0x01;
+	A = (A >> 1) | (F.C << 7);
+	F.Z = 0;
+	F.N = 0;
+	F.H = 0;
+	F.C = carry;
+}
+
+// CB commands
+void CPU::rlc(u8& reg)
+{
+	F.C = reg >> 7;
+	reg = (reg << 1) | F.C;
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::rrc(u8& reg)
+{
+	F.C = reg & 0x01;
+	reg = (reg >> 1) | (F.C << 7);
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::rl(u8& reg)
+{
+	F.C = reg >> 7;
+	reg = (reg << 1) | F.C;
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::rr(u8& reg)
+{
+	F.C = reg & 0x01;
+	reg = (reg >> 1) | (F.C << 7);
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::sla(u8& reg)
+{
+	F.C = reg >> 7;
+	reg = reg << 1;
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::sra(u8& reg)
+{
+	F.C = reg & 0x01;
+	reg = (reg >> 1) | (reg & 0x80);
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::swap(u8& reg)
+{
+	reg = (reg << 4) | (reg >> 4);
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+	F.C = 0;
+}
+
 // adds to A
 void CPU::add(u8 val)
 {
@@ -351,15 +707,31 @@ void CPU::sbc(u8 val)
 	A = result;
 }
 
-//void CPU::add(u16 reg)
-//{
-//	F.C = A + reg > 0xFFFF;
-//	u16 result = A + reg;
-//	F.N = 0;
-//	// carry from bit 11 to 12
-//	F.H = ((val1 & 0x0FFF) + (val2 & 0x0FFF)) > 0x0FFF;
-//	A = result & 0xFF;
-//}
+void CPU::srl(u8& reg)
+{
+	F.C = reg & 0x01;
+	reg = reg >> 1;
+	F.Z = reg == 0;
+	F.N = 0;
+	F.H = 0;
+}
+
+void CPU::bit(u8 bit, u8 reg)
+{
+	F.Z = (reg & (1 << bit)) == 0;
+	F.N = 0;
+	F.H = 1;
+}
+
+void CPU::res(u8 bit, u8& reg)
+{
+	reg &= ~(1 << bit);
+}
+
+void CPU::set(u8 bit, u8& reg)
+{
+	reg |= (1 << bit);
+}
 
 void CPU::_and(u8 val)
 {
