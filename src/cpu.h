@@ -9,12 +9,13 @@ public:
 
 	void execute(u8 opcode);
 
-	void increment(u8& reg);
-	void decrement(u8& reg);
+	void inc(u8& reg);
+	void dec(u8& reg);
 	void rlca();
 	void rrca();
 
 	void add(u8 val);
+	void add(u16 val);
 	void adc(u8 val);
 
 	void sub(u8 val);

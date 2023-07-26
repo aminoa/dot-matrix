@@ -132,22 +132,22 @@ void CPU::execute(u8 opcode)
 	case 0xF9: sp = HL; break;
 
 	// 8 bit arithmetic/logic instructions
-	case 0x04: increment(B); break;
-	case 0x05: decrement(B); break;
-	case 0x0C: increment(C); break;
-	case 0x0D: decrement(C); break;
-	case 0x14: increment(D); break;
-	case 0x15: decrement(D); break;
-	case 0x1C: increment(E); break;
-	case 0x1D: decrement(E); break;
-	case 0x24: increment(H); break;
-	case 0x25: decrement(H); break;
-	case 0x2C: increment(L); break;
-	case 0x2D: decrement(L); break;
-	case 0x34: u8 temp = mmu->read_byte(HL); increment(temp); mmu->write_byte(HL, temp); break;
-	case 0x35: temp = mmu->read_byte(HL); decrement(temp); mmu->write_byte(HL, temp); break;
-	case 0x3C: increment(A); break;
-	case 0x3D: decrement(A); break;
+	case 0x04: inc(B); break;
+	case 0x05: dec(B); break;
+	case 0x0C: inc(C); break;
+	case 0x0D: dec(C); break;
+	case 0x14: inc(D); break;
+	case 0x15: dec(D); break;
+	case 0x1C: inc(E); break;
+	case 0x1D: dec(E); break;
+	case 0x24: inc(H); break;
+	case 0x25: dec(H); break;
+	case 0x2C: inc(L); break;
+	case 0x2D: dec(L); break;
+	case 0x34: u8 temp = mmu->read_byte(HL); inc(temp); mmu->write_byte(HL, temp); break;
+	case 0x35: temp = mmu->read_byte(HL); dec(temp); mmu->write_byte(HL, temp); break;
+	case 0x3C: inc(A); break;
+	case 0x3D: dec(A); break;
 	
 	case 0x80: add(B); break;
 	case 0x81: add(C); break;
@@ -223,7 +223,25 @@ void CPU::execute(u8 opcode)
 	case 0xF6: _or(mmu->read_byte(pc)); pc += 1; break;
 	case 0xFE: cp(mmu->read_byte(pc)); pc += 1; break;
 
+	// 16-bit arithmetic/logic instructions
+	case 0x03: BC++; break;
+	case 0x09: add(BC); break;
+	case 0x0B: BC--; break;
+	case 0x13: DE++; break;
+	case 0x19: add(DE); break;
+	case 0x1B: DE--; break;
+	case 0x23: HL++; break;
+	case 0x29: add(HL); break;
+	case 0x2B: HL--; break;
+	case 0x33: sp++; break;
+	case 0x39: add(sp); break;
+	case 0x3B: sp--; break;
+	case 0xE8: sp = -(unsigned int)mmu->read_byte(++pc) + sp; break;
+
+	// Rotate and shift instructions
+
 	
+
 	//case 0x00: break;	
 	//case 0x03: BC++; break;
 	//case 0x04: increment(B); break;
@@ -245,7 +263,7 @@ void CPU::execute(u8 opcode)
 	pc += 1;
 }
 
-void CPU::increment(u8& reg)
+void CPU::inc(u8& reg)
 {
 	reg++;
 	if (reg == 0) { F.Z = 1; }
@@ -253,7 +271,7 @@ void CPU::increment(u8& reg)
 	F.H = (reg & 0x0F) == 0x00;
 }
 
-void CPU::decrement(u8& reg)
+void CPU::dec(u8& reg)
 {
 	reg--;
 	if (reg == 0) { F.Z = 1; }
@@ -281,6 +299,7 @@ void CPU::rrca()
 	F.C = carry;
 }
 
+// adds to A
 void CPU::add(u8 val)
 {
 	F.C = u16(A) + u16(val) > 0xFF;
@@ -289,6 +308,17 @@ void CPU::add(u8 val)
 	// carry from bit 3 to 4
 	F.H = ((A & 0x0F) + (val & 0x0F)) > 0x0F;
 	A = result;
+}
+
+// adds to HL
+void CPU::add(u16 val)
+{
+	F.C = u32(HL) + u32(val) > 0xFFFF;
+	u16 result = HL + val;
+	F.N = 0;
+	// carry from bit 11 to 12
+	F.H = ((HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF;
+	HL = result;
 }
 
 void CPU::adc(u8 val)
