@@ -514,19 +514,24 @@ void CPU::execute(u8 opcode)
 		break;
 	}
 
-	//case 0x00: break;	
-	//case 0x03: BC++; break;
-	//case 0x04: increment(B); break;
-	//case 0x05: B--; break;
-	//case 0x07: rlca(); break;
-	//case 0x08: mmu->write(mmu->read(pc), sp); pc += 2; break;
-	//case 0x09: add(HL, BC); break;
-	//case 0x0B: BC--; break;
-	//case 0x0C: increment(C); break;
-	//case 0x0D: decrement(C); break;
-	//case 0x0F: rrca(); break;
-
-	//case 0x10: break;
+	// CPU control instructions
+	case 0x00: break;
+	case 0x10: std::cout << "Unimplemented" << std::endl; break;
+	case 0x27: std::cout << "Unimplemented" << std::endl; break;
+	case 0x37: F.C = 1; F.H = 0; F.N = 0; break;
+	case 0x76: return; 
+	case 0xF3: std::cout << "Unimplemented" << std::endl; break; //ime = false; break;
+	case 0xFB: std::cout << "Unimplemented" << std::endl; break; //ime = true; break;
+	
+	// Jump and call instructions
+	case 0x18: pc += mmu->read_byte(pc); break;
+	case 0x20: if (F.Z == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
+	case 0x28: if (F.Z == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
+	case 0x30: if (F.C == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
+	case 0x38: if (F.C == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
+	case 0xC0: if (F.Z == 0) { pc = mmu->read_short(sp); sp += 2; pc -= 1; } break;
+	case 0xC2: if (F.Z == 0) { pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xC3: pc = mmu->read_short(pc); pc -= 1; break;
 
 	default:
 		break;
@@ -766,6 +771,11 @@ void CPU::cp(u8 val)
 	F.C = A < val;
 	F.N = 1;
 	F.H = ((A & 0x0F) < (val & 0x0F));
+}
+
+void CPU::daa()
+{
+
 }
 
 void CPU::pop(u16& reg)

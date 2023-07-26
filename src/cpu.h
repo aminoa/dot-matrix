@@ -42,7 +42,8 @@ public:
 	void _or(u8 val);
 	void cp(u8 val);
 
-	//void add(u16 val1, u16 val2);
+	// CPU control
+	void daa();
 
 	void pop(u16& reg);
 	void push(u16& reg);
