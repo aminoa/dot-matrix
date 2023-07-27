@@ -2,10 +2,10 @@
 
 CPU::CPU(MMU* mmu)
 {
-	AF = 0x1000;
-	BC = 0xFF13;
-	DE = 0x00C1;
-	HL = 0x8403;
+	AF = 0x01B0;
+	BC = 0x0013;
+	DE = 0x00D8;
+	HL = 0x014D;
 
 	pc = 0x100;
 	sp = 0xFFFE;
@@ -18,7 +18,9 @@ CPU::CPU(MMU* mmu)
 void CPU::execute(u8 opcode)
 {
 	//need to check overloading different 1 or 2 bytes for some writes
-	std::cout << OPCODE_NAMES[opcode] << std::endl;
+	std::cout << std::hex << pc << ": " << std::hex << u16(opcode) << " - " << OPCODE_NAMES[opcode] << std::endl;
+	//std::cout << std::hex << "AF: " << u16(AF) << ", BC: " << u16(BC) << ", DE: " << u16(DE) << ", HL: " << u16(HL) << std::endl;
+
 	u8 temp = 0;
 	//modify clock cycles here
 
@@ -128,7 +130,7 @@ void CPU::execute(u8 opcode)
 	case 0xE5: push(HL); break;
 	case 0xF1: pop(AF); break;
 	case 0xF5: push(AF); break;
-	case 0xF8: HL = sp + mmu->read_byte(++pc); break;
+	case 0xF8: HL = sp + (i8)mmu->read_byte(++pc); break;
 	case 0xF9: sp = HL; break;
 
 	// 8 bit arithmetic/logic instructions
@@ -236,7 +238,7 @@ void CPU::execute(u8 opcode)
 	case 0x33: sp++; break;
 	case 0x39: add(sp); break;
 	case 0x3B: sp--; break;
-	case 0xE8: sp = -(unsigned int)mmu->read_byte(++pc) + sp; break;
+	case 0xE8: sp = -(i8)mmu->read_byte(++pc) + sp; break;
 
 	// 8-bit shift, rotate and bit instructions
 	case 0x07: rlca(); break;
@@ -518,36 +520,36 @@ void CPU::execute(u8 opcode)
 	case 0x00: break;
 	case 0x10: std::cout << "Unimplemented" << std::endl; break;
 	case 0x27: std::cout << "Unimplemented" << std::endl; break;
-	case 0x37: F.C = 1; F.H = 0; F.N = 0; break;
+	case 0x37: FLAG_C = 1; FLAG_H = 0; FLAG_N = 0; break;
 	case 0x76: return; 
 	case 0xF3: std::cout << "Unimplemented" << std::endl; break; //ime = false; break;
 	case 0xFB: std::cout << "Unimplemented" << std::endl; break; //ime = true; break;
 	
 	// Jump and call instructions 
-	case 0x18: pc += mmu->read_byte(pc); break;
-	case 0x20: if (F.Z == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
-	case 0x28: if (F.Z == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
-	case 0x30: if (F.C == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
-	case 0x38: if (F.C == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
-	case 0xC0: if (F.Z == 0) { pop(pc); } break;
-	case 0xC2: if (F.Z == 0) { pc = mmu->read_short(pc); pc -= 1; } break;
-	case 0xC3: pc = mmu->read_short(pc); pc -= 1; break;
-	case 0xC4: if (F.Z == 0) { mmu->write_short(sp, pc + 2); sp += 2; pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0x18: jump_relative(true); break;
+	case 0x20: jump_relative(FLAG_Z == 0); break;
+	case 0x28: jump_relative(FLAG_Z == 1); break;
+	case 0x30: jump_relative(FLAG_C == 0); break;
+	case 0x38: jump_relative(FLAG_C == 1); break;
+	case 0xC0: if (FLAG_Z == 0) { pop(pc); } break;
+	case 0xC2: jump(FLAG_Z == 0); break;
+	case 0xC3: jump(true); break;
+	case 0xC4: if (FLAG_Z == 0) { mmu->write_short(sp, pc + 2); sp += 2; pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xC7: push(pc); pc = 0x00; pc -= 1; break;
-	case 0xC8: if (F.Z) { pop(pc); pc -= 1; } break;
+	case 0xC8: if (FLAG_Z) { pop(pc); pc -= 1; } break;
 	case 0xC9: pop(pc); pc -= 1; break;
-	case 0xCA: if (F.Z) { pc = mmu->read_short(pc); pc -= 1; } break;
-	case 0xCC: if (F.Z) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xCA: jump(FLAG_Z); break;
+	case 0xCC: if (FLAG_Z) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xCD: push(pc); pc = mmu->read_short(pc); pc -= 1; break;
 	case 0xCF: push(pc); pc = 0x08; pc -= 1; break;
-	case 0xD0: if (F.C == 0) { pop(pc); pc -= 1; } break;
-	case 0xD2: if (F.C == 0) { pc = mmu->read_short(pc); pc -= 1; } break;
-	case 0xD4: if (F.C == 0) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xD0: if (FLAG_C == 0) { pop(pc); pc -= 1; } break;
+	case 0xD2: jump(FLAG_C == 0); break;
+	case 0xD4: if (FLAG_C == 0) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xD7: push(pc); pc = 0x10; pc -= 1; break;
-	case 0xD8: if (F.C) { pop(pc); pc -= 1; } break;
-	case 0xD9: std::cout << "Unimplemneted" << std::endl; break; 
-	case 0xDA: if (F.C) { pc = mmu->read_short(pc); pc -= 1; } break;
-	case 0xDC: if (F.C) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xD8: if (FLAG_C) { pop(pc); pc -= 1; } break;
+	case 0xD9: std::cout << "Unimplemented" << std::endl; break; 
+	case 0xDA: jump(FLAG_C); break;
+	case 0xDC: if (FLAG_C) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xDF: push(pc); pc = 0x18; pc -= 1; break;
 	case 0xE7: push(pc); pc = 0x20; pc -= 1; break;
 	case 0xE9: pc = HL; pc -= 1; break;
@@ -555,8 +557,7 @@ void CPU::execute(u8 opcode)
 	case 0xF7: push(pc); pc = 0x30; pc -= 1; break;
 	case 0xFF: push(pc); pc = 0x38; pc -= 1; break;
 
-	default:
-		break;
+	default: std::cout << "Unknown Opcode (something went wrong)" << std::endl;
 	}
 	
 	pc += 1;
@@ -565,189 +566,189 @@ void CPU::execute(u8 opcode)
 void CPU::inc(u8& reg)
 {
 	reg++;
-	if (reg == 0) { F.Z = 1; }
-	F.N = 0;
-	F.H = (reg & 0x0F) == 0x00;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = (reg & 0x0F) == 0x00;
 }
 
 void CPU::dec(u8& reg)
 {
 	reg--;
-	if (reg == 0) { F.Z = 1; }
-	F.N = 1;
-	F.H = (reg & 0x0F) == 0x0F;
+	FLAG_Z = reg == 0;
+	FLAG_N = 1;
+	FLAG_H = (reg & 0x0F) == 0x0F;
 }
 
 void CPU::rlca()
 {
 	u8 carry = A >> 7;
 	A = (A << 1) | carry;
-	F.Z = 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = carry;
+	FLAG_Z = 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = carry;
 }
 
 void CPU::rrca()
 {
 	u8 carry = A & 0x01;
 	A = (A >> 1) | (carry << 7);
-	F.Z = 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = carry;
+	FLAG_Z = 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = carry;
 }
 
 void CPU::rla()
 {
 	u8 carry = A >> 7;
-	A = (A << 1) | F.C;
-	F.Z = 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = carry;
+	A = (A << 1) | FLAG_C;
+	FLAG_Z = 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = carry;
 }
 
 void CPU::rra()
 {
 	u8 carry = A & 0x01;
-	A = (A >> 1) | (F.C << 7);
-	F.Z = 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = carry;
+	A = (A >> 1) | (FLAG_C << 7);
+	FLAG_Z = 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = carry;
 }
 
 // CB commands
 void CPU::rlc(u8& reg)
 {
-	F.C = reg >> 7;
-	reg = (reg << 1) | F.C;
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_C = reg >> 7;
+	reg = (reg << 1) | FLAG_C;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::rrc(u8& reg)
 {
-	F.C = reg & 0x01;
-	reg = (reg >> 1) | (F.C << 7);
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_C = reg & 0x01;
+	reg = (reg >> 1) | (FLAG_C << 7);
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::rl(u8& reg)
 {
-	F.C = reg >> 7;
-	reg = (reg << 1) | F.C;
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_C = reg >> 7;
+	reg = (reg << 1) | FLAG_C;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::rr(u8& reg)
 {
-	F.C = reg & 0x01;
-	reg = (reg >> 1) | (F.C << 7);
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_C = reg & 0x01;
+	reg = (reg >> 1) | (FLAG_C << 7);
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::sla(u8& reg)
 {
-	F.C = reg >> 7;
+	FLAG_C = reg >> 7;
 	reg = reg << 1;
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::sra(u8& reg)
 {
-	F.C = reg & 0x01;
+	FLAG_C = reg & 0x01;
 	reg = (reg >> 1) | (reg & 0x80);
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::swap(u8& reg)
 {
 	reg = (reg << 4) | (reg >> 4);
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = 0;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = 0;
 }
 
 // adds to A
 void CPU::add(u8 val)
 {
-	F.C = u16(A) + u16(val) > 0xFF;
+	FLAG_C = u16(A) + u16(val) > 0xFF;
 	u8 result = A + val;
-	F.N = 0;
+	FLAG_N = 0;
 	// carry from bit 3 to 4
-	F.H = ((A & 0x0F) + (val & 0x0F)) > 0x0F;
+	FLAG_H = ((A & 0x0F) + (val & 0x0F)) > 0x0F;
 	A = result;
 }
 
 // adds to HL
 void CPU::add(u16 val)
 {
-	F.C = u32(HL) + u32(val) > 0xFFFF;
+	FLAG_C = u32(HL) + u32(val) > 0xFFFF;
 	u16 result = HL + val;
-	F.N = 0;
+	FLAG_N = 0;
 	// carry from bit 11 to 12
-	F.H = ((HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF;
+	FLAG_H = ((HL & 0x0FFF) + (val & 0x0FFF)) > 0x0FFF;
 	HL = result;
 }
 
 void CPU::adc(u8 val)
 {	
-	u8 carry = F.C;
-	F.C = u16(A) + u16(val) + u16(carry) > 0xFF;
+	u8 carry = FLAG_C;
+	FLAG_C = u16(A) + u16(val) + u16(carry) > 0xFF;
 	u8 result = A + val + carry;
-	F.N = 0;
+	FLAG_N = 0;
 	// carry from bit 3 to 4
-	F.H = ((A & 0x0F) + (val & 0x0F) + carry) > 0x0F;
+	FLAG_H = ((A & 0x0F) + (val & 0x0F) + carry) > 0x0F;
 	A = result;
 }
 
 void CPU::sub(u8 val)
 {
-	F.C = A < val;
+	FLAG_C = A < val;
 	u8 result = A - val;
-	F.N = 1;
-	F.H = ((A & 0x0F) < (val & 0x0F));
+	FLAG_N = 1;
+	FLAG_H = ((A & 0x0F) < (val & 0x0F));
 	A = result;
 }
 
 void CPU::sbc(u8 val)
 {
-	u8 carry = F.C;
-	F.C = A < u16(val) + u16(carry);
+	u8 carry = FLAG_C;
+	FLAG_C = A < u16(val) + u16(carry);
 	u8 result = A - val - carry;
-	F.N = 1;
-	F.H = ((A & 0x0F) < (val & 0x0F) - carry);
+	FLAG_N = 1;
+	FLAG_H = ((A & 0x0F) < (val & 0x0F) - carry);
 	A = result;
 }
 
 void CPU::srl(u8& reg)
 {
-	F.C = reg & 0x01;
+	FLAG_C = reg & 0x01;
 	reg = reg >> 1;
-	F.Z = reg == 0;
-	F.N = 0;
-	F.H = 0;
+	FLAG_Z = reg == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
 }
 
 void CPU::bit(u8 bit, u8 reg)
 {
-	F.Z = (reg & (1 << bit)) == 0;
-	F.N = 0;
-	F.H = 1;
+	FLAG_Z = (reg & (1 << bit)) == 0;
+	FLAG_N = 0;
+	FLAG_H = 1;
 }
 
 void CPU::res(u8 bit, u8& reg)
@@ -763,36 +764,36 @@ void CPU::set(u8 bit, u8& reg)
 void CPU::_and(u8 val)
 {
 	A = A & val;
-	F.Z = A == 0;
-	F.N = 0;
-	F.H = 1;
-	F.C = 0;
+	FLAG_Z = A == 0;
+	FLAG_N = 0;
+	FLAG_H = 1;
+	FLAG_C = 0;
 }
 
 void CPU::_xor(u8 val)
 {
 	A = A ^ val;
-	F.Z = A == 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = 0;
+	FLAG_Z = A == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = 0;
 }
 
 void CPU::_or(u8 val)
 {
 	A = A | val;
-	F.Z = A == 0;
-	F.N = 0;
-	F.H = 0;
-	F.C = 0;
+	FLAG_Z = A == 0;
+	FLAG_N = 0;
+	FLAG_H = 0;
+	FLAG_C = 0;
 }
 
 void CPU::cp(u8 val)
 {
-	F.Z = A == val;
-	F.C = A < val;
-	F.N = 1;
-	F.H = ((A & 0x0F) < (val & 0x0F));
+	FLAG_Z = A == val;
+	FLAG_C = A < val;
+	FLAG_N = 1;
+	FLAG_H = ((A & 0x0F) < (val & 0x0F));
 }
 
 void CPU::daa()
@@ -810,4 +811,28 @@ void CPU::push(u16 val)
 {
 	mmu->write_short(sp - 2, val);
 	sp -= 2;
+}
+
+// 16 bit jump
+void CPU::jump(bool condition)
+{
+	if (condition)
+	{
+		pc = mmu->read_short(pc + 1);
+		pc -= 1;
+	}
+}
+
+// 8 bit jump
+void CPU::jump_relative(bool condition)
+{
+	if (condition)
+	{
+		// signed 
+		pc += 1 + (i8) mmu->read_byte(pc + 1); 
+	}
+	else
+	{
+		pc++;
+	}
 }

@@ -48,17 +48,29 @@ public:
 	void pop(u16& reg);
 	void push(u16 val);
 
+	void jump(bool condition);
+	void jump_relative(bool condition);
+
+
 	u16 pc;
 	u16 sp;
 	MMU* mmu;
 
 	//registers
 	union {
+		u16 AF;
 		struct {
-			struct { u8 : 4; u8 Z : 1; u8 N : 1; u8 H : 1; u8 C : 1; } F;
+			u8 F;
 			u8 A;
 		};
-		u16 AF;
+		struct {
+			u8 _unused : 4;
+			u8 FLAG_C: 1;
+			u8 FLAG_H: 1;
+			u8 FLAG_N: 1;
+			u8 FLAG_Z: 1;
+			u8 _unused2 : 8;
+		};
 	};
 
 	union {
