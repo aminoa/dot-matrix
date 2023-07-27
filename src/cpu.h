@@ -46,7 +46,7 @@ public:
 	void daa();
 
 	void pop(u16& reg);
-	void push(u16& reg);
+	void push(u16 val);
 
 	u16 pc;
 	u16 sp;

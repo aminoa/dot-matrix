@@ -523,15 +523,37 @@ void CPU::execute(u8 opcode)
 	case 0xF3: std::cout << "Unimplemented" << std::endl; break; //ime = false; break;
 	case 0xFB: std::cout << "Unimplemented" << std::endl; break; //ime = true; break;
 	
-	// Jump and call instructions
+	// Jump and call instructions 
 	case 0x18: pc += mmu->read_byte(pc); break;
 	case 0x20: if (F.Z == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
 	case 0x28: if (F.Z == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
 	case 0x30: if (F.C == 0) { pc += mmu->read_byte(pc); pc -= 1; } break;
 	case 0x38: if (F.C == 1) { pc += mmu->read_byte(pc); pc -= 1; } break;
-	case 0xC0: if (F.Z == 0) { pc = mmu->read_short(sp); sp += 2; pc -= 1; } break;
+	case 0xC0: if (F.Z == 0) { pop(pc); } break;
 	case 0xC2: if (F.Z == 0) { pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xC3: pc = mmu->read_short(pc); pc -= 1; break;
+	case 0xC4: if (F.Z == 0) { mmu->write_short(sp, pc + 2); sp += 2; pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xC7: push(pc); pc = 0x00; pc -= 1; break;
+	case 0xC8: if (F.Z) { pop(pc); pc -= 1; } break;
+	case 0xC9: pop(pc); pc -= 1; break;
+	case 0xCA: if (F.Z) { pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xCC: if (F.Z) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xCD: push(pc); pc = mmu->read_short(pc); pc -= 1; break;
+	case 0xCF: push(pc); pc = 0x08; pc -= 1; break;
+	case 0xD0: if (F.C == 0) { pop(pc); pc -= 1; } break;
+	case 0xD2: if (F.C == 0) { pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xD4: if (F.C == 0) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xD7: push(pc); pc = 0x10; pc -= 1; break;
+	case 0xD8: if (F.C) { pop(pc); pc -= 1; } break;
+	case 0xD9: std::cout << "Unimplemneted" << std::endl; break; 
+	case 0xDA: if (F.C) { pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xDC: if (F.C) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xDF: push(pc); pc = 0x18; pc -= 1; break;
+	case 0xE7: push(pc); pc = 0x20; pc -= 1; break;
+	case 0xE9: pc = HL; pc -= 1; break;
+	case 0xEF: push(pc); pc = 0x28; pc -= 1; break;
+	case 0xF7: push(pc); pc = 0x30; pc -= 1; break;
+	case 0xFF: push(pc); pc = 0x38; pc -= 1; break;
 
 	default:
 		break;
@@ -784,9 +806,8 @@ void CPU::pop(u16& reg)
 	sp += 2;
 }
 
-// not sure about this
-void CPU::push(u16& reg)
+void CPU::push(u16 val)
 {
+	mmu->write_short(sp - 2, val);
 	sp -= 2;
-	reg = mmu->read_short(sp);
 }
