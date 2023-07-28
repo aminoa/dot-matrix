@@ -1,6 +1,7 @@
 #include "cpu.h"
+#include "interrupt.h"
 
-CPU::CPU(MMU* mmu)
+CPU::CPU(MMU* mmu, Interrupt* interrupt)
 {
 	AF = 0x01B0;
 	BC = 0x0013;
@@ -11,6 +12,7 @@ CPU::CPU(MMU* mmu)
 	sp = 0xFFFE;
 
 	this->mmu = mmu;
+	this->interrupt = interrupt;
 
 }
 
@@ -518,12 +520,12 @@ void CPU::execute(u8 opcode)
 
 	// CPU control instructions
 	case 0x00: break;
-	case 0x10: std::cout << "Unimplemented" << std::endl; break;
-	case 0x27: std::cout << "Unimplemented" << std::endl; break;
+	case 0x10: stopped = true; break;
+	case 0x27: daa();
 	case 0x37: FLAG_C = 1; FLAG_H = 0; FLAG_N = 0; break;
-	case 0x76: return; 
-	case 0xF3: std::cout << "Unimplemented" << std::endl; break; //ime = false; break;
-	case 0xFB: std::cout << "Unimplemented" << std::endl; break; //ime = true; break;
+	case 0x76: halted = true;  break;
+	case 0xF3: interrupt->ime = false; break; 
+	case 0xFB: interrupt->ime = true; break; 
 	
 	// Jump and call instructions 
 	case 0x18: jump_relative(true); break;
@@ -798,7 +800,18 @@ void CPU::cp(u8 val)
 
 void CPU::daa()
 {
+	if (FLAG_N)
+	{
+		if (FLAG_C || A > 0x99) { A += 0x60; FLAG_C = 1; }
+		if (FLAG_H || (A & 0x0F) > 0x09) { A += 0x06; }
+	} 
+	else {
+		if (FLAG_C) { A -= 0x60; }
+		if (FLAG_H) { A -= 0x06; }
+	}
 
+	FLAG_Z = A == 0;
+	FLAG_H = 0;
 }
 
 void CPU::pop(u16& reg)

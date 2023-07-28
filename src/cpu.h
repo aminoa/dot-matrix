@@ -1,11 +1,12 @@
 #pragma once
 #include "consts.h"
 #include "mmu.h"
+#include "interrupt.h"
 
 class CPU
 {
 public:
-	CPU(MMU* mmu);
+	CPU(MMU* mmu, Interrupt* interrupt);
 
 	void execute(u8 opcode);
 
@@ -55,6 +56,12 @@ public:
 	u16 pc;
 	u16 sp;
 	MMU* mmu;
+	Interrupt* interrupt;
+
+	void check_interrupts();
+
+	bool halted;
+	bool stopped;
 
 	//registers
 	union {
@@ -64,12 +71,12 @@ public:
 			u8 A;
 		};
 		struct {
-			u8 _unused : 4;
+			u8 : 4;
 			u8 FLAG_C: 1;
 			u8 FLAG_H: 1;
 			u8 FLAG_N: 1;
 			u8 FLAG_Z: 1;
-			u8 _unused2 : 8;
+			u8 : 8;
 		};
 	};
 
@@ -87,4 +94,5 @@ public:
 		struct { u8 H; u8 L; };
 		u16 HL;
 	};
+
 };

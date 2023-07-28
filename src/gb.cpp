@@ -6,7 +6,8 @@ GB::GB(const char* rom_path)
 	this->rom_path = rom_path;
 	this->cart = new Cart(rom_path);
 	this->mmu = new MMU(cart);
-	this->cpu = new CPU(mmu);
+	this->interrupt = new Interrupt(mmu);
+	this->cpu = new CPU(mmu, interrupt);
 }
 
 void GB::run()
@@ -15,6 +16,9 @@ void GB::run()
 
 	while (true)
 	{
+		//clock, interrupts
+				
+
 		u8 instruction = this->mmu->read_byte(this->cpu->pc);
 		cpu->execute(instruction);
 		//cpu->pc++;

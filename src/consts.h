@@ -10,6 +10,15 @@ typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 
+enum INTERRUPT_FLAGS
+{
+	INTERRUPT_VBLANK = 1 << 0,
+	INTERRUPT_LCD = 1 << 1,
+	INTERRUPT_TIMER = 1 << 2,
+	INTERRUPT_SERIAL = 1 << 3,
+	INTERRUPT_JOYPAD = 1 << 4
+};
+
 // Consts for the clock cycles
 // Consts for timers
 
