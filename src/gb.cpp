@@ -1,4 +1,7 @@
+#pragma once
 #include "gb.h"
+#include "cpu.h"
+#include "mmu.h"
 #include <iostream>
 
 GB::GB(const char* rom_path)
@@ -6,8 +9,7 @@ GB::GB(const char* rom_path)
 	this->rom_path = rom_path;
 	this->cart = new Cart(rom_path);
 	this->mmu = new MMU(cart);
-	this->interrupt = new Interrupt(mmu);
-	this->cpu = new CPU(mmu, interrupt);
+	this->cpu = new CPU(mmu);
 }
 
 void GB::run()

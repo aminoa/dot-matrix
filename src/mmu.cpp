@@ -1,3 +1,4 @@
+#pragma once
 #include "mmu.h"
 
 MMU::MMU(Cart* cart)
@@ -7,10 +8,6 @@ MMU::MMU(Cart* cart)
 
 	// TODO: map cart rom to memory
 }
-
-// 8000 - 9FFF - VRAM
-// A000 - BFFF - External RAM
-//
 
 u8 MMU::read_byte(u16 addr)
 {

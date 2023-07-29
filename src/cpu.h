@@ -1,12 +1,10 @@
 #pragma once
-#include "consts.h"
 #include "mmu.h"
-#include "interrupt.h"
 
 class CPU
 {
 public:
-	CPU(MMU* mmu, Interrupt* interrupt);
+	CPU(MMU* mmu);
 
 	void execute(u8 opcode);
 
@@ -52,13 +50,14 @@ public:
 	void jump(bool condition);
 	void jump_relative(bool condition);
 
-
 	u16 pc;
 	u16 sp;
 	MMU* mmu;
-	Interrupt* interrupt;
 
+	// interrupts
 	void check_interrupts();
+	void handle_interrupt(u8 interrupt_address, u8 interrupt_flag);
+	bool ime;
 
 	bool halted;
 	bool stopped;

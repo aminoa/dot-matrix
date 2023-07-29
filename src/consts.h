@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <iostream>
 
@@ -10,12 +11,29 @@ typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 
-u16 INTERRUPT_VBLANK = 1 << 0;
-u16 INTERRUPT_LCD = 1 << 1;
-u16 INTERRUPT_TIMER = 1 << 2;
-u16 INTERRUPT_SERIAL = 1 << 3;
-u16 INTERRUPT_JOYPAD = 1 << 4;
+namespace Interrupt 
+{
+//    // appropriate bits to flip
+	u8 VBLANK = 1 << 0;
+	u8 LCD = 1 << 1;
+	u8 TIMER = 1 << 2;
+	u8 SERIAL = 1 << 3;
+	u8 JOYPAD = 1 << 4;
+}
+//
+//
+namespace Memory 
+{
+    u16 VBLANK= 0x40;
+    u16 LCD= 0x48;
+    u16 TIMER= 0x50;
+    u16 SERIAL= 0x58;
+    u16 JOYPAD= 0x60;
 
+    u16 IF = 0xFF0F;
+	u16 IE = 0xFFFF;
+}
+//
 // Consts for the clock cycles
 // Consts for timers
 

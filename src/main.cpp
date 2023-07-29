@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "gb.h"
 #include <iostream>
 

@@ -1,7 +1,7 @@
+#pragma once
 #include "cpu.h"
-#include "interrupt.h"
 
-CPU::CPU(MMU* mmu, Interrupt* interrupt)
+CPU::CPU(MMU* mmu)
 {
 	AF = 0x01B0;
 	BC = 0x0013;
@@ -12,9 +12,55 @@ CPU::CPU(MMU* mmu, Interrupt* interrupt)
 	sp = 0xFFFE;
 
 	this->mmu = mmu;
-	this->interrupt = interrupt;
-
+	ime = false;
+	stopped = false;
+	halted = false;
 }
+
+// interrupts handling 
+
+void CPU::check_interrupts()
+{
+	// there's an enable and flag set
+	if (ime & mmu->read_byte(Memory::IE) & mmu->read_byte(Memory::IF) & 0x0F)
+	{
+		ime = false;
+
+		if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::VBLANK)
+		{
+			handle_interrupt(Memory::VBLANK, Interrupt::VBLANK);
+		}
+		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::LCD)
+		{
+			handle_interrupt(Memory::LCD, Interrupt::LCD);
+		}
+		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::TIMER)
+		{
+			handle_interrupt(Memory::TIMER, Interrupt::TIMER);
+		}
+		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::SERIAL)
+		{
+			handle_interrupt(Memory::SERIAL, Interrupt::SERIAL);
+		}
+		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::JOYPAD)
+		{
+			handle_interrupt(Memory::JOYPAD, Interrupt::JOYPAD);
+		}
+
+		//ime restored after routine
+	}
+}
+
+void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
+{
+	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) & ~interrupt_flag);
+	// disable interrupts
+	ime = false;
+	push(pc);
+	pc = interrupt_address;
+}
+
+// CPU execution
 
 // instructions pre-increment pc for correct order evaluation
 void CPU::execute(u8 opcode)
@@ -524,8 +570,8 @@ void CPU::execute(u8 opcode)
 	case 0x27: daa();
 	case 0x37: FLAG_C = 1; FLAG_H = 0; FLAG_N = 0; break;
 	case 0x76: halted = true;  break;
-	case 0xF3: interrupt->ime = false; break; 
-	case 0xFB: interrupt->ime = true; break; 
+	case 0xF3: ime = false; break; 
+	case 0xFB: ime = true; break; 
 	
 	// Jump and call instructions 
 	case 0x18: jump_relative(true); break;
@@ -549,7 +595,9 @@ void CPU::execute(u8 opcode)
 	case 0xD4: if (FLAG_C == 0) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xD7: push(pc); pc = 0x10; pc -= 1; break;
 	case 0xD8: if (FLAG_C) { pop(pc); pc -= 1; } break;
-	case 0xD9: std::cout << "Unimplemented" << std::endl; break; 
+
+	case 0xD9: std::cout << "Unimplemented" << std::endl; break; // RETI
+
 	case 0xDA: jump(FLAG_C); break;
 	case 0xDC: if (FLAG_C) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
 	case 0xDF: push(pc); pc = 0x18; pc -= 1; break;
