@@ -1,5 +1,8 @@
 #pragma once
+
 #include "cpu.h"
+#include "consts.h"
+#include "mmu.h"
 
 CPU::CPU(MMU* mmu)
 {
@@ -18,7 +21,7 @@ CPU::CPU(MMU* mmu)
 }
 
 // interrupts handling 
-
+//
 void CPU::check_interrupts()
 {
 	// there's an enable and flag set
@@ -50,7 +53,7 @@ void CPU::check_interrupts()
 		//ime restored after routine
 	}
 }
-
+//
 void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
 {
 	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) & ~interrupt_flag);
@@ -59,7 +62,7 @@ void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
 	push(pc);
 	pc = interrupt_address;
 }
-
+//
 // CPU execution
 
 // instructions pre-increment pc for correct order evaluation

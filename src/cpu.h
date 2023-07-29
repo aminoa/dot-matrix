@@ -1,5 +1,8 @@
 #pragma once
-#include "mmu.h"
+#include "consts.h"
+
+class MMU;
+
 
 class CPU
 {
