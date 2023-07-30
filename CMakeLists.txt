@@ -11,8 +11,17 @@ endif()
 
 project ("dot-matrix")
 
+
 # Add source to this project's executable.
-add_executable (dot-matrix "src/main.cpp"  "src/gb.cpp" "src/gb.h" "src/cart.cpp" "src/cart.h" "src/consts.h" "src/cpu.h" "src/cpu.cpp" "src/mmu.h" "src/mmu.cpp"    "src/ppu.h" "src/timer.cpp" "src/timer.h")
+add_executable (dot-matrix "src/main.cpp" "src/gb.cpp" "src/gb.h" "src/cart.cpp" "src/cart.h" "src/consts.h" "src/cpu.h" "src/cpu.cpp" "src/mmu.h" "src/mmu.cpp" "src/ppu.h" "src/ppu.cpp" )
+
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(dot-matrix
+	PRIVATE
+	$<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+	$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+)
+
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET dot-matrix PROPERTY CXX_STANDARD 20)

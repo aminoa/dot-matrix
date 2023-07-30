@@ -1,7 +1,5 @@
-//{
-//  "name": "dot-matrix",
-//  "version-string": "1.0.0",
-//  "dependencies": [
-//    "sdl2"
-//  ]
-//}
+{
+  "dependencies": [
+    "sdl2"
+  ]
+}
