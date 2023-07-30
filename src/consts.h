@@ -75,6 +75,11 @@ namespace Memory {
 
     const u16 IF = 0xFF0F;
 	const u16 IE = 0xFFFF;
+
+    const u16 DIV = 0xFF04;
+	const u16 TIMA = 0xFF05;
+	const u16 TMA = 0xFF06;
+	const u16 TAC = 0xFF07;
 }
 
 ////

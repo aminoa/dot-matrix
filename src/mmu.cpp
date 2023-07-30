@@ -3,20 +3,21 @@
 
 MMU::MMU(Cart* cart)
 {
-	memory = std::vector<u8>(0xFFFF);
+	memory = std::vector<u8>(0x10000);
 	this->cart = cart;
-
-	// TODO: map cart rom to memory
 }
 
 u8 MMU::read_byte(u16 addr)
 {
 	//assuming ROM only (no MBC)
-	if (0x0000 <= addr <= 0x7FFF) 
+	
+	if (0 <= addr && addr <= 0x7FFF)
 	{
 		return this->cart->rom[addr];
+	} else 
+	{
+		return this->memory[addr];
 	}
-
 }
 
 void MMU::write_byte(u16 addr, u8 val)
