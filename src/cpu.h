@@ -53,6 +53,8 @@ public:
 	void jump(bool condition);
 	void jump_relative(bool condition);
 
+	void call(bool condition);
+
 	u16 pc;
 	u16 sp;
 	MMU* mmu;
@@ -64,6 +66,11 @@ public:
 
 	bool halted;
 	bool stopped;
+
+
+	// timers
+
+	//void check_timer(u8 cycles);
 
 	//registers
 	union {
@@ -93,7 +100,7 @@ public:
 	};
 
 	union {
-		struct { u8 H; u8 L; };
+		struct { u8 L; u8 H; };
 		u16 HL;
 	};
 

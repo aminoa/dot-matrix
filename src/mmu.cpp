@@ -11,12 +11,19 @@ u8 MMU::read_byte(u16 addr)
 {
 	//assuming ROM only (no MBC)
 	
-	if (0 <= addr && addr <= 0x7FFF)
+	
+	if (0x0000 <= addr && addr <= 0x7FFF)
 	{
 		return this->cart->rom[addr];
 	} else 
 	{
 		return this->memory[addr];
+	}
+
+
+	if (addr == 0xFF44)
+	{
+		return 0x90;
 	}
 }
 
@@ -54,6 +61,6 @@ u16 MMU::read_short(u16 addr)
 
 void MMU::write_short(u16 addr, u16 val)
 {
-	this->write_byte(addr, val & 0xFF);
-	this->write_byte(addr, val >> 8);
+	this->write_byte(addr, u8(val & 0xFF));
+	this->write_byte(addr + 1, u8((val & 0xFF00) >> 8));
 }

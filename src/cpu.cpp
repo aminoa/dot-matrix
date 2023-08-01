@@ -68,13 +68,9 @@ void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
 // instructions pre-increment pc for correct order evaluation
 void CPU::execute(u8 opcode)
 {
-	//need to check overloading different 1 or 2 bytes for some writes
-	std::cout << std::hex << pc << ": " << std::hex << u16(opcode) << " - " << OPCODE_NAMES[opcode] << std::endl;
-	//std::cout << std::hex << "AF: " << u16(AF) << ", BC: " << u16(BC) << ", DE: " << u16(DE) << ", HL: " << u16(HL) << std::endl;
+	//std::cout << std::hex << pc << ": " << std::hex << u16(opcode) << " - " << OPCODE_NAMES[opcode] << std::endl;
 
 	u8 temp = 0;
-	//modify clock cycles here
-
 	switch (opcode)
 	{
 	// 8 bit load instructions
@@ -585,24 +581,25 @@ void CPU::execute(u8 opcode)
 	case 0xC0: if (FLAG_Z == 0) { pop(pc); } break;
 	case 0xC2: jump(FLAG_Z == 0); break;
 	case 0xC3: jump(true); break;
-	case 0xC4: if (FLAG_Z == 0) { mmu->write_short(sp, pc + 2); sp += 2; pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xC4: call(FLAG_Z == 0); break;
 	case 0xC7: push(pc); pc = 0x00; pc -= 1; break;
 	case 0xC8: if (FLAG_Z) { pop(pc); pc -= 1; } break;
 	case 0xC9: pop(pc); pc -= 1; break;
 	case 0xCA: jump(FLAG_Z); break;
-	case 0xCC: if (FLAG_Z) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
-	case 0xCD: push(pc); pc = mmu->read_short(pc); pc -= 1; break;
+	case 0xCC: call(FLAG_Z); break;
+	//case 0xCD: call(true); break;
+	case 0xCD: push(pc); pc = mmu->read_short(pc + 1); pc -= 1; break;
 	case 0xCF: push(pc); pc = 0x08; pc -= 1; break;
 	case 0xD0: if (FLAG_C == 0) { pop(pc); pc -= 1; } break;
 	case 0xD2: jump(FLAG_C == 0); break;
-	case 0xD4: if (FLAG_C == 0) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xD4: call(FLAG_C == 0); break;
 	case 0xD7: push(pc); pc = 0x10; pc -= 1; break;
 	case 0xD8: if (FLAG_C) { pop(pc); pc -= 1; } break;
 
 	case 0xD9: std::cout << "Unimplemented" << std::endl; break; // RETI
 
 	case 0xDA: jump(FLAG_C); break;
-	case 0xDC: if (FLAG_C) { push(pc); pc = mmu->read_short(pc); pc -= 1; } break;
+	case 0xDC: call(FLAG_C); break;
 	case 0xDF: push(pc); pc = 0x18; pc -= 1; break;
 	case 0xE7: push(pc); pc = 0x20; pc -= 1; break;
 	case 0xE9: pc = HL; pc -= 1; break;
@@ -898,5 +895,15 @@ void CPU::jump_relative(bool condition)
 	else
 	{
 		pc++;
+	}
+}
+
+void CPU::call(bool condition)
+{
+	if (condition)
+	{
+		push(pc); 
+		pc = mmu->read_short(pc + 1); 
+		pc -= 1; 
 	}
 }
