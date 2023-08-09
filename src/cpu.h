@@ -3,13 +3,13 @@
 
 class MMU;
 
-
 class CPU
 {
 public:
 	CPU(MMU* mmu);
 
 	void execute(u8 opcode);
+	void execute_cb(u8 opcode);
 
 	void inc(u8& reg);
 	void dec(u8& reg);
@@ -50,8 +50,8 @@ public:
 	void pop(u16& reg);
 	void push(u16 val);
 
-	void jump(bool condition);
-	void jump_relative(bool condition);
+	//void jump(bool condition);
+	//void jump_relative(bool condition);
 
 	void call(bool condition);
 
@@ -66,7 +66,6 @@ public:
 
 	bool halted;
 	bool stopped;
-
 
 	// timers
 

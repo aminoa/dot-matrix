@@ -2,7 +2,7 @@
 #include "gb.h"
 #include "cpu.h"
 #include "mmu.h"
-#include "ppu.h"
+//#include "ppu.h"
 #include "consts.h"
 
 #include <iostream>
@@ -14,7 +14,7 @@ GB::GB(const char* rom_path)
 	this->cart = new Cart(rom_path);
 	this->mmu = new MMU(cart);
 	this->cpu = new CPU(mmu);
-	this->ppu = new PPU(cpu, cart->title, mmu);
+	//this->ppu = new PPU(cpu, cart->title, mmu);
 }
 
 void GB::run()
@@ -34,9 +34,9 @@ void GB::run()
 		u8 instruction = this->mmu->read_byte(this->cpu->pc);
 		cpu->execute(instruction);
 		
-		u8 instruction_cycles = (instruction == 0xCB) ? OP_CB_CYCLES[instruction] : OP_CYCLES[instruction];
+		//u8 instruction_cycles = (instruction == 0xCB) ? OP_CB_CYCLES[instruction] : OP_CYCLES[instruction];
 		//cpu->check_timer(instruction_cycles);
 		cpu->check_interrupts();
-		ppu->update();
+		//ppu->update();
 	}
 }

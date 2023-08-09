@@ -42,43 +42,43 @@
 //	const u8 VRAM = 3;
 //}
 
-struct Sprite
-{
-	u8 y;
-	u8 x;
-	u8 tile;	
-
-	union {
-		u8 flags;
-		struct {
-			u8 unused : 4;
-			u8 palette : 1;
-			u8 x_flip : 1;
-			u8 y_flip : 1;
-			u8 priority : 1;
-		};
-	};
-};
-
-
-class PPU
-{
-public:
-	PPU(CPU* cpu, std::string title, MMU* mmu);
-	
-	Sprite sprite_ram[40];
-	u8 framebuffer[160][144][3];
-	
-	void update(u8 cycles);
-
-	void draw_frame();
-
-	CPU* cpu;
-	MMU* mmu;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	SDL_Texture* texture;
-	u8 cycle;
-
-	int cycle;
-};
+//struct Sprite
+//{
+//	u8 y;
+//	u8 x;
+//	u8 tile;	
+//
+//	union {
+//		u8 flags;
+//		struct {
+//			u8 unused : 4;
+//			u8 palette : 1;
+//			u8 x_flip : 1;
+//			u8 y_flip : 1;
+//			u8 priority : 1;
+//		};
+//	};
+//};
+//
+//
+//class PPU
+//{
+//public:
+//	PPU(CPU* cpu, std::string title, MMU* mmu);
+//	
+//	Sprite sprite_ram[40];
+//	u8 framebuffer[160][144][3];
+//	
+//	void update(u8 cycles);
+//
+//	void draw_frame();
+//
+//	CPU* cpu;
+//	MMU* mmu;
+//	SDL_Window* window;
+//	SDL_Renderer* renderer;
+//	SDL_Texture* texture;
+//	u8 cycle;
+//
+//	int cycle;
+//};

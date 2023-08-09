@@ -15,7 +15,7 @@ private:
 	Cart* cart = nullptr;
 	CPU* cpu = nullptr;
 	MMU* mmu = nullptr;
-	PPU* ppu = nullptr;
+	//PPU* ppu = nullptr;
 	const char* rom_path = nullptr;
 
 };
