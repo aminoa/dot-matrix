@@ -47,13 +47,8 @@ public:
 	// CPU control
 	void daa();
 
-	void pop(u16& reg);
+	u16 pop();
 	void push(u16 val);
-
-	//void jump(bool condition);
-	//void jump_relative(bool condition);
-
-	void call(bool condition);
 
 	u16 pc;
 	u16 sp;

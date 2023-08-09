@@ -11,6 +11,10 @@ u8 MMU::read_byte(u16 addr)
 {
 	//assuming ROM only (no MBC)
 	
+	if (addr == 0xFF44)
+	{
+		return 0x90;
+	}
 	
 	if (0x0000 <= addr && addr <= 0x7FFF)
 	{
@@ -21,10 +25,6 @@ u8 MMU::read_byte(u16 addr)
 	}
 
 
-	if (addr == 0xFF44)
-	{
-		return 0x90;
-	}
 }
 
 void MMU::write_byte(u16 addr, u8 val)

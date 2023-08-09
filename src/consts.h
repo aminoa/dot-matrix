@@ -225,7 +225,7 @@ const std::vector<Opcode> OPCODES =
 	Opcode(0xC8, "RET", {20, 8}, 1),
 	Opcode(0xC9, "RET", {16}, 1),
 	Opcode(0xCA, "JP", {16, 12}, 3),
-	Opcode(0xCB, "PREFIX", {4}, 1),
+	Opcode(0xCB, "PREFIX", {4}, 0),
 	Opcode(0xCC, "CALL", {24, 12}, 3),
 	Opcode(0xCD, "CALL", {24}, 3),
 	Opcode(0xCE, "ADC", {8}, 2),
