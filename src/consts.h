@@ -7,16 +7,23 @@
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
+typedef uint64_t u64;
 
 typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 
+
+const int SCREEN_WIDTH = 160;
+const int SCREEN_HEIGHT = 144;
+
+using std::vector;
+
 struct Opcode
 {
 	u8 value;
 	std::string mnemonic;
-	std::vector<int> cycles;
+	vector<int> cycles;
 	int bytes; 
 };
 
@@ -549,15 +556,19 @@ namespace Interrupt
 }
 
 namespace Memory {
-    const u16 VBLANK= 0x40;
-    const u16 LCD= 0x48;
-    const u16 TIMER= 0x50;
-    const u16 SERIAL= 0x58;
-    const u16 JOYPAD= 0x60;
+	//interrupts
+    const u16 VBLANK_HANDLER = 0x40;
+    const u16 LCD_HANDLER = 0x48;
+    const u16 TIMER_HANDLER = 0x50;
+    const u16 SERIAL_HANDLER = 0x58;
+    const u16 JOYPAD_HANDLER = 0x60;
+
+	const u16 JOYPAD_ADDR = 0xFF00;
 
     const u16 IF = 0xFF0F;
 	const u16 IE = 0xFFFF;
 }
+
 
 // Consts for the clock cycles
 

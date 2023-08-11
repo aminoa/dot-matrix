@@ -2,7 +2,7 @@
 #include "gb.h"
 #include "cpu.h"
 #include "mmu.h"
-//#include "ppu.h"
+#include "ppu.h"
 #include "consts.h"
 
 #include <iostream>
@@ -14,13 +14,12 @@ GB::GB(const char* rom_path)
 	this->cart = new Cart(rom_path);
 	this->mmu = new MMU(cart);
 	this->cpu = new CPU(mmu);
-	//this->ppu = new PPU(cpu, cart->title, mmu);
+	this->ppu = new PPU(cpu, cart->title, mmu);
+	this->joypad = new Joypad(mmu);
 }
 
 void GB::run()
 {
-	//std::cout << "Running " << this->cart->title << std::endl;
-
 	while (true)
 	{
 		//A:00 F:11 B:22 C:33 D:44 E:55 H:66 L:77 SP:8888 PC:9999 PCMEM:AA,BB,CC,DD
@@ -30,13 +29,21 @@ void GB::run()
 			this->mmu->read_byte(cpu->pc), this->mmu->read_byte(cpu->pc + 1), this->mmu->read_byte(cpu->pc + 2), this->mmu->read_byte(cpu->pc + 3));
 		fmt::print("{} {}\n",cpu_state, pc_mem);
 
-		//clock, interrupts
 		u8 instruction = this->mmu->read_byte(this->cpu->pc);
 		cpu->execute(instruction);
 		
-		//u8 instruction_cycles = (instruction == 0xCB) ? OP_CB_CYCLES[instruction] : OP_CYCLES[instruction];
+		//for now don't differentiate between number of cycles - explanation for [0] indexing  
+		u8 instruction_cycles = (instruction == 0xCB) ? CB_OPCODES[instruction].cycles[0] : OPCODES[instruction].cycles[0];
+
 		//cpu->check_timer(instruction_cycles);
 		cpu->check_interrupts();
 		//ppu->update();
+
+		if (cpu->pc == 0x2817)
+		{
+			ppu->display_tile_data();
+		}
+
+		joypad->update_inputs();
 	}
 }

@@ -11,6 +11,12 @@ public:
 	u16 read_short(u16 addr);
 	void write_short(u16 addr, u16 val);
 
-	std::vector<u8> memory;
+	std::vector<u8> ram;
+
+
+	// Interrupts
+	u8 IE;
+	u8 IF;
+
 	Cart* cart;
 };

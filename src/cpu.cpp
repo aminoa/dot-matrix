@@ -31,23 +31,23 @@ void CPU::check_interrupts()
 
 		if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::VBLANK)
 		{
-			handle_interrupt(Memory::VBLANK, Interrupt::VBLANK);
+			handle_interrupt(Memory::VBLANK_HANDLER, Interrupt::VBLANK);
 		}
 		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::LCD)
 		{
-			handle_interrupt(Memory::LCD, Interrupt::LCD);
+			handle_interrupt(Memory::LCD_HANDLER, Interrupt::LCD);
 		}
 		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::TIMER)
 		{
-			handle_interrupt(Memory::TIMER, Interrupt::TIMER);
+			handle_interrupt(Memory::TIMER_HANDLER, Interrupt::TIMER);
 		}
 		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::SERIAL)
 		{
-			handle_interrupt(Memory::SERIAL, Interrupt::SERIAL);
+			handle_interrupt(Memory::SERIAL_HANDLER, Interrupt::SERIAL);
 		}
 		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::JOYPAD)
 		{
-			handle_interrupt(Memory::JOYPAD, Interrupt::JOYPAD);
+			handle_interrupt(Memory::JOYPAD_HANDLER, Interrupt::JOYPAD);
 		}
 
 		//ime restored after routine
@@ -80,6 +80,8 @@ void CPU::execute(u8 opcode)
 	{
 		pc += OPCODES[opcode].bytes;
 	}
+
+	//std::cout << OPCODES[opcode].mnemonic << std::endl;
 
 	u8 temp = 0;
 	switch (opcode)
@@ -864,39 +866,30 @@ void CPU::cp(u8 val)
 // Credit: https://github.com/LIJI32/SameBoy/blob/master/Core/sm83_cpu.c
 void CPU::daa()
 {
-	int16_t result = AF >> 8;
+	int a = A;
 
-	AF &= ~(0xFF00 | FLAG_Z);
+	if (!FLAG_N)
+	{
+		if (FLAG_H || (a & 0xF) > 9) { a += 0x06; }
 
-	if (AF & FLAG_N) {
-		if (AF & FLAG_H) {
-			result = (result - 0x06) & 0xFF;
-		}
-
-		if (AF & FLAG_C) {
-			result -= 0x60;
-		}
+		if (FLAG_C || a > 0x9F) { a += 0x60; }
 	}
-	else {
-		if ((AF & FLAG_H) || (result & 0x0F) > 0x09) {
-			result += 0x06;
-		}
+	else
+	{
+		if (FLAG_H) { a = (a - 6) & 0xFF; }
 
-		if ((AF & FLAG_C) || result > 0x9F) {
-			result += 0x60;
-		}
+		if (FLAG_C) { a -= 0x60; }
 	}
 
-	if ((result & 0xFF) == 0) {
-		AF |= FLAG_Z;
-	}
+	F &= ~(FLAG_H | FLAG_Z);
 
-	if ((result & 0x100) == 0x100) {
-		AF |= FLAG_C;
-	}
+	if ((a & 0x100) == 0x100) { F |= FLAG_C; }
 
-	AF &= ~FLAG_H;
-	AF |= result << 8;
+	a &= 0xFF;
+
+	if (a == 0) { F |= FLAG_Z; }
+
+	A = (u8)a;
 }
 
 u16 CPU::pop()
