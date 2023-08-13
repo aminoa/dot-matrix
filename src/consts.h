@@ -567,6 +567,10 @@ namespace Memory {
 
     const u16 IF = 0xFF0F;
 	const u16 IE = 0xFFFF;
+
+	const u16 LY = 0xFF44;
+	const u16 LYC = 0xFF45;
+	const u16 STAT = 0xFF41;
 }
 
 

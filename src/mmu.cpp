@@ -11,7 +11,6 @@ MMU::MMU(Cart* cart)
 u8 MMU::read_byte(u16 addr)
 {
 	if (addr <= 0x7FFF) { return this->cart->rom[addr]; } 
-	if (addr == 0xFF44) { return 0x90; }
 	
 	return this->ram[addr];
 	
@@ -19,18 +18,6 @@ u8 MMU::read_byte(u16 addr)
 
 void MMU::write_byte(u16 addr, u8 val)
 {
-	//ignore special writes for now
-	//if (0x0000 <= addr <= 0x7FFF)
-	//{
-	//	std::cout << "Unimplemented" << std::endl;
-	//	return;
-	//}
-	//else if (0xA000 <= addr <= 0xBFFF)
-	//{
-	//	std::cout << "Unimplemented" << std::endl;
-	//	return;
-	//}
-
 	this->ram[addr] = val;
 }
 

@@ -53,6 +53,12 @@ void CPU::check_interrupts()
 		//ime restored after routine
 	}
 }
+
+void CPU::trigger_interrupt(u8 interrupt)
+{
+	mmu->write_byte(Memory::IF, mmu->read_byte((Memory::IF) | interrupt));
+}
+
 //
 void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
 {
@@ -310,8 +316,10 @@ void CPU::execute(u8 opcode)
 	// CPU control instructions
 	case 0x00: break;
 	case 0x10: stopped = true; break;
-	case 0x27: daa();
+	case 0x27: daa(); break;
+	case 0x2F: A = ~A; FLAG_N = 1; FLAG_H = 1; break;
 	case 0x37: FLAG_C = 1; FLAG_H = 0; FLAG_N = 0; break;
+	case 0x3F: FLAG_C = !FLAG_C; FLAG_H = 0; FLAG_N = 0; break;
 	case 0x76: halted = true;  break;
 	case 0xF3: ime = false; break; 
 	case 0xFB: ime = true; break; 
@@ -337,8 +345,7 @@ void CPU::execute(u8 opcode)
 	case 0xD4: if (FLAG_C == 0) { push(pc); pc = arg_u16; } break;
 	case 0xD7: push(pc); pc = 0x10; break;
 	case 0xD8: if (FLAG_C) pc = pop(); break;
-
-	case 0xD9: std::cout << "Unimplemented" << std::endl; break; // RETI
+	case 0xD9: pc = pop(); ime = true; break;
 
 	case 0xDA: if (FLAG_C) pc = arg_u16; break;
 	case 0xDC: if (FLAG_C) { push(pc); pc = arg_u16; } break;

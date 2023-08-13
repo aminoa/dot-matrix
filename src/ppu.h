@@ -24,24 +24,62 @@ struct Sprite
 	};
 };
 
+enum Modes
+{
+	OAM = 2,
+	VRAM = 3,
+	HBlank = 0,
+	VBlank = 1
+};
+
+namespace LCDC
+{
+	const u8 ENABLED = 1 << 7;
+	const u8 WINDOW_TILE_MAP = 1 << 6;
+	const u8 WINDOW_ENABLED = 1 << 5;
+	const u8 BG_WINDOW_TILE_DATA = 1 << 4;
+	const u8 BG_TILE_MAP = 1 << 3;
+	const u8 OBJ_SIZE = 1 << 2;
+	const u8 OBJ_ENABLED = 1 << 1;
+	const u8 BG_ENABLED = 1 << 0;
+}
+
+namespace Stat
+{
+	const u8 LYC_INTERRUPT = 1 << 6;
+	const u8 OAM_INTERRUPT = 1 << 5;
+	const u8 VBLANK_INTERRUPT = 1 << 4;
+	const u8 HBLANK_INTERRUPT = 1 << 3;
+	const u8 LYC_LY_FLAG = 1 << 2;
+	const u8 MODE_FLAG = 1 << 1 | 1 << 0;
+
+	const u8 MODE_HBLANK = 0x0;
+	const u8 MODE_VBLANK = 0x1;
+	const u8 MODE_OAM = 0x2;
+	const u8 MODE_VRAM = 0x3;
+}
 
 class PPU
 {
 public:
 	PPU(CPU* cpu, std::string title, MMU* mmu);
 
+	//void display_tile_data();
+	void tick();
+	//void draw_line(i32 ly);
 	void display_tile_data();
+	void update_frame();
 
 	CPU* cpu;
 	MMU* mmu;
 
-	u8 cycle;
+	u32 cycle;
 
 	// RGBA is 64 bits
-	std::vector<std::vector<u64>> framebuffer;
 
 	// SDL Components
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	SDL_Surface* surface;
+
+	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH];
 };

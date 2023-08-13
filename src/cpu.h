@@ -56,7 +56,7 @@ public:
 
 	// interrupts
 	void check_interrupts();
-	void handle_interrupt(u8 interrupt_address, u8 interrupt_flag);
+	void trigger_interrupt(u8 interrupt);
 	bool ime;
 
 	bool halted;
@@ -98,4 +98,6 @@ public:
 		u16 HL;
 	};
 
+private:
+	void handle_interrupt(u8 interrupt_address, u8 interrupt_flag);
 };
