@@ -1,3 +1,4 @@
+#pragma once
 #include <SDL2/SDL.h>
 #include "consts.h"
 #include "mmu.h"
@@ -16,11 +17,11 @@ namespace Buttons
 	const u8 A = 1 << 0;
 }
 
-class Joypad
+class Input
 {
 public:
-	Joypad(MMU* mmu);
-	void update_inputs();
+	Input(MMU* mmu);
+	void update_joypad();
 
 	MMU* mmu;
 

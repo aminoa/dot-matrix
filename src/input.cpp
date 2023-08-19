@@ -1,8 +1,9 @@
-#include "joypad.h"
+#pragma once
+#include "input.h"
 #include "mmu.h"
 #include "consts.h"
 
-Joypad::Joypad(MMU* mmu)
+Input::Input(MMU* mmu)
 {
 	this->mmu = mmu;
 
@@ -18,7 +19,7 @@ Joypad::Joypad(MMU* mmu)
 	state = SDL_GetKeyboardState(NULL);
 }
 
-void Joypad::update_inputs()
+void Input::update_joypad()
 {
 	SDL_PumpEvents();
 	up = state[SDL_SCANCODE_UP];

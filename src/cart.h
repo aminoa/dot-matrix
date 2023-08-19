@@ -19,5 +19,4 @@ public:
 	u8 rom_size;
 	u8 ram_size;
 	u8 version;
-
 };

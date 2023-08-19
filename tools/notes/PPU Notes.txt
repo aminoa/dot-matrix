@@ -1,0 +1,79 @@
+PPU: 
+
+12 registers:
+
+FF40 - LCDC (LCD Control - R/W)
+FF41 - STAT (LCDC Status - R/W)
+
+Also FF42 - FF4B (for scrolling, LCDC, LY Compare, DMA transfer....)
+
+GB: 160 by 144, 4 shades of gray
+8 by 8 pixel tile-based, 20 by 18 tiles
+40 sprites (10 per line)
+8 KB VRAM
+
+8 by 8:
+- 4 colors, color depends on palette
+- every line of pixels has two bytes
+
+Palettes:
+FF47 (2 bit to 2 bit mapping, for background tiles) 00 means white, 11 means black
+
+256 tiles in the system, background tile data
+
+Background map - in VRAM, there are 32 by 32 tiles, what you see is a viewport (256 by 256 pixels).
+
+On top of background - window (FF40 LCDC, FF4A, 4b - y, x position) there's no translucency, but used as overlay
+
+Sprites - objects on screen that don't fit into 8 by 8 rasters, 3 sprites. FF40 - OBJ enable.
+
+Every sprite has attributes - OAM object attribute map:
+	- 1 entry, x position, y position, tile number, priority (draw in comparision with background), flip_x, flip_y, palette (palette 0/1). 
+	
+	- 1 (draw at the back of all pixels but above background). 0 draws on top of everything
+	- Sprite/sprite priority - sprite with lower number wins because draws over)
+	- 40 sprites total - per line, 10 
+	
+	OAM entry fits into one bytes
+	FE00 -> FE9C, where OAM entries live (live in OAM RAM), not part of VRAM
+	
+	- There are 8 by 16 sprites too but it's global
+	
+Layers:
+- Three different layers: LCDC (LCD Control) - FF40 - background enable, FF41 - OBJ enable, FF45 window enable, FF47 - LCD dispaly enable
+
+VRAM Memory Map:
+- 4 kb BG Tiles (256 by 16 bytes)
+- 4 kb Sprite Tiles  (256 by 16 bytes)
+- 1 kb BG map (32 by 32 indexes)
+- 1 kb window map (32 by 32 indexes)
+
+Only 8 kb of VRAM.... therefore put the sprites tiles from 8000 - 9000, BG map at 9800, window map after, BG tiles overlap, you can configure it based on FF40
+
+Vertical Timing:
+
+- draws from top to bottom, left to right, 60 times a second, LCD refreshed 60 times per second
+FF41, can set up interrupt 
+
+- FF41 - LCDC Status (R/W)
+- FF44 - LCDC Y-Coordinate (R)
+- FF45 - LYC (LY Compare (R/W))
+
+Horizontal Timing:
+
+- While a line is drawn, pixel transfer (43 clocks), 144 lines. 
+- OAM search (20 clocks), Pixel transfer, H-Blank (PPU idles), smae for VBlank
+- 20 LCDC Status (for OAM interrupt, V-blank interrupts, H-blank interrupts), IF, IE
+
+144 lines for oam serach, pixel transfer, H-blank
+10 lines for vblank
+
+OAM Search (20 clocks - for every line, PPU decides which sprites are visible in the line, 40 sprites total, needs to filter (find the sprites that are visible in the line, put them in an array of 10 sprites). oam.x != 0, LY + 16 >= oam.y and LY + 16 < oam.y + h, added to visible sprite array
+
+CPU -> RAM
+PPU -> VRAM (+ OAM RAM)
+
+CPU -> PPU (needs to check if availble based on switch, if you write, nothing, read FF). During pixel transfer, cannot access VRAM (but can ccess anything else). During OAM searfch or pixel transfer, can only acces during H-blank, V-blank
+
+OAM DMA function (write block you want to copy into location). 
+
