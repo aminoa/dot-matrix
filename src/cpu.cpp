@@ -196,7 +196,8 @@ void CPU::execute(u8 opcode)
 	case 0xE5: push(HL); break;
 	case 0xF1: AF = pop() & 0xFFF0; break;
 	case 0xF5: push(AF); break;
-	case 0xF8: HL = sp + (i8)arg_u8; break;
+	//case 0xF8: HL = sp + (i8)arg_u8; break;
+	case 0xF8: load_hl(arg_u8); break;
 	case 0xF9: sp = HL; break;
 
 	// 8 bit arithmetic/logic instructions
@@ -708,11 +709,14 @@ void CPU::rrc(u8& reg)
 
 void CPU::rl(u8& reg)
 {
-	FLAG_C = reg >> 7;
-	reg = (reg << 1) | FLAG_C;
-	FLAG_Z = reg == 0;
+	u8 result = (reg << 1) | FLAG_C;
+
+	FLAG_Z = result == 0;
 	FLAG_N = 0;
 	FLAG_H = 0;
+	FLAG_C = reg >> 7;
+
+	reg = result;
 }
 
 void CPU::rr(u8& reg)
@@ -778,6 +782,7 @@ void CPU::add(u16 val)
 	HL = result;
 }
 
+// adds to A
 void CPU::adc(u8 val)
 {	
 	u8 carry = FLAG_C;
@@ -790,6 +795,7 @@ void CPU::adc(u8 val)
 	A = result;
 }
 
+// subs to A
 void CPU::sub(u8 val)
 {
 	FLAG_C = A < val;
@@ -800,26 +806,30 @@ void CPU::sub(u8 val)
 	A = result;
 }
 
-// For SP
+// adds to sp
 void CPU::add_signed(u8 val)
 {
-
-	int result = sp + (int8_t) val;
+	u16 result = sp + (i8) val;
 	
 	FLAG_Z = 0;
 	FLAG_N = 0;
-
-
+	FLAG_H = ((sp & 0x0F) + (val & 0x0F)) > 0x0F;
+	FLAG_C = ((sp & 0xFF) + (val & 0xFF)) > 0xFF;
+	sp = result;
 }
 
 void CPU::sbc(u8 val)
 {
 	u8 carry = FLAG_C;
-	FLAG_C = A < u16(val) + u16(carry);
-	u8 result = A - val - carry;
+
+	//FLAG_C = A < u16(val) + u16(carry);
+	FLAG_C = (A & 0xFF) < (val & 0xFF) + carry;
+	FLAG_H = (A & 0x0F) < (val & 0x0F) + carry;
+
+	A -= (val + carry);
+
+	FLAG_Z = A == 0;
 	FLAG_N = 1;
-	FLAG_H = ((A & 0x0F) < (val & 0x0F) - carry);
-	A = result;
 }
 
 void CPU::srl(u8& reg)
@@ -909,20 +919,16 @@ u16 CPU::pop()
 
 void CPU::push(u16 val)
 {
-	//this->ram->set(this->SP - 1, ((val & 0xFF00) >> 8) & 0xFF);
-	//this->ram->set(this->SP - 2, val & 0xFF);
-	//this->SP -= 2;
-
 	mmu->write_short(sp - 2, val);
 	sp -= 2;
 }
 
-//void CPU::call(bool condition)
-//{
-//	if (condition)
-//	{
-//		push(pc); 
-//		pc = mmu->read_short(pc + 1); 
-//		pc -= 1; 
-//	}
-//}
+void CPU::load_hl(u8 val)
+{
+	HL = sp + (i8) val;
+
+	FLAG_Z = 0;
+	FLAG_N = 0;
+	FLAG_H = ((sp & 0x0F) + (val & 0x0F)) > 0x0F;
+	FLAG_C = ((sp & 0xFF) + (val & 0xFF)) > 0xFF;
+}

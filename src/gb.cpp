@@ -22,24 +22,10 @@ GB::GB(const char* rom_path)
 
 void GB::run()
 {
-	std::ifstream log_file;
-	std::vector<std::string> log_lines;
-	
-	//if (TESTING)
-	//{
-	//	std::cout << "Reading test log...\n";
-	//	// open file log: C:\Users\Aneesh\Documents\Projects\dot-matrix\roms\gb_logs\blarg3.txt
-	//	log_file.open("C:\\Users\\Aneesh\\Documents\\Projects\\dot-matrix\\roms\\gb_logs\\blarg3.txt");
-
-	//	while (log_file.good())
-	//	{
-	//		std::string line;
-	//		std::getline(log_file, line);
-	//		log_lines.push_back(line);
-	//	}
-	//	log_file.close();
-	//	std::cout << "Done reading test log.\n";
-	//}
+	std::fstream log_file;
+	log_file.open("../../../tools/gameboy-doctor/log.txt", std::ios::out);
+	log_file.clear();
+	int line_count = 1;
 
 	while (true)
 	{
@@ -53,7 +39,11 @@ void GB::run()
 			cpu->A, cpu->F, cpu->B, cpu->C, cpu->D, cpu->E, cpu->H, cpu->L, cpu->sp, cpu->pc);
 		std::string pc_mem = fmt::format("PCMEM:{:02X},{:02X},{:02X},{:02X}", 
 			this->mmu->read_byte(cpu->pc), this->mmu->read_byte(cpu->pc + 1), this->mmu->read_byte(cpu->pc + 2), this->mmu->read_byte(cpu->pc + 3));
-		fmt::print("{} {}\n",cpu_state, pc_mem);
+		std::string state = fmt::format("{} {}",cpu_state, pc_mem);
+
+		log_file << state << std::endl;
+		//fmt::print("{} {}\n", line_count, state);
+		line_count++;
 
 		cpu->execute(instruction);
 		
@@ -67,10 +57,10 @@ void GB::run()
 		input->update_joypad();
 
 		// Blarg test info
-		//if (mmu->read_byte(0xff02) == 0x81)
-		//{
-		//	std::cout << mmu->read_byte(0xff01);
-		//	mmu->write_byte(0xff02, 0x00);
-		//}
+		if (mmu->read_byte(0xff02) == 0x81)
+		{
+			std::cout << mmu->read_byte(0xff01);
+			mmu->write_byte(0xff02, 0x00);
+		}
 	}
 }

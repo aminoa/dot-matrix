@@ -50,6 +50,7 @@ public:
 
 	u16 pop();
 	void push(u16 val);
+	void load_hl(u8 val);
 
 	u16 pc;
 	u16 sp;
