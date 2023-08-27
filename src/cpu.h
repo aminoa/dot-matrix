@@ -35,6 +35,7 @@ public:
 	void add(u8 val);
 	void add(u16 val);
 	void adc(u8 val);
+	void add_signed(u8 val);
 
 	void sub(u8 val);
 	void sbc(u8 val);

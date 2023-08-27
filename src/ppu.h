@@ -2,8 +2,7 @@
 #include <string>
 #include <SDL2/SDL.h>
 #include <vector>
-
-#include "CPU.h"
+ #include "CPU.h"
 #include "MMU.h"
 
 struct Sprite

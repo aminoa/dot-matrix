@@ -304,7 +304,8 @@ void CPU::execute(u8 opcode)
 	case 0x33: sp++; break;
 	case 0x39: add(sp); break;
 	case 0x3B: sp--; break;
-	case 0xE8: sp = -(i8)arg_u8 + sp; break;
+	//case 0xE8: sp = -(i8)arg_u8 + sp; break;
+	case 0xE8: add_signed(arg_u8); break;
 
 	// 8-bit shift, rotate and bit instructions
 	case 0x07: rlca(); break;
@@ -799,6 +800,18 @@ void CPU::sub(u8 val)
 	A = result;
 }
 
+// For SP
+void CPU::add_signed(u8 val)
+{
+
+	int result = sp + (int8_t) val;
+	
+	FLAG_Z = 0;
+	FLAG_N = 0;
+
+
+}
+
 void CPU::sbc(u8 val)
 {
 	u8 carry = FLAG_C;
@@ -870,33 +883,20 @@ void CPU::cp(u8 val)
 	FLAG_H = ((A & 0x0F) < (val & 0x0F));
 }
 
-// Credit: https://github.com/LIJI32/SameBoy/blob/master/Core/sm83_cpu.c
+// Credit to https://www.reddit.com/r/EmuDev/comments/6wge9z/some_help_debugging_blarggs_game_boy_test_roms/ by u/binjimint
 void CPU::daa()
 {
-	int a = A;
-
-	if (!FLAG_N)
-	{
-		if (FLAG_H || (a & 0xF) > 9) { a += 0x06; }
-
-		if (FLAG_C || a > 0x9F) { a += 0x60; }
+	u8 u = 0;
+	if (FLAG_H || (!FLAG_N && (A & 0xf) > 9)) {
+		u = 6;
 	}
-	else
-	{
-		if (FLAG_H) { a = (a - 6) & 0xFF; }
-
-		if (FLAG_C) { a -= 0x60; }
+	if (FLAG_C || (!FLAG_N && A > 0x99)) {
+		u |= 0x60;
+		FLAG_C = 1;
 	}
-
-	F &= ~(FLAG_H | FLAG_Z);
-
-	if ((a & 0x100) == 0x100) { F |= FLAG_C; }
-
-	a &= 0xFF;
-
-	if (a == 0) { F |= FLAG_Z; }
-
-	A = (u8)a;
+	A += FLAG_N ? -u : u;
+	FLAG_Z = A == 0;
+	FLAG_H = 0;
 }
 
 u16 CPU::pop()

@@ -10,6 +10,9 @@ MMU::MMU(Cart* cart)
 //assuming no MBC
 u8 MMU::read_byte(u16 addr)
 {
+	//stub LY register to 0x90
+	if (addr == 0xFF44) { return 0x90; }
+
 	if (addr <= 0x7FFF) { return this->cart->rom[addr]; } 
 	
 	return this->ram[addr];
