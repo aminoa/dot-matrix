@@ -35,7 +35,7 @@ void PPU::tick()
 		if (stat & Stat::OAM_INTERRUPT)
 		{
 			//cpu->request_interrupt(Interrupt::LCD_STAT);
-			cpu->trigger_interrupt(Interrupt::LCD);
+			//cpu->trigger_interrupt(Interrupt::LCD);
 		}
 	}
 
@@ -56,7 +56,7 @@ void PPU::tick()
 	else if (lx == 0 && ly == 144)
 	{
 		stat |= Stat::MODE_VBLANK;
-		cpu->trigger_interrupt(Interrupt::VBLANK);
+		//cpu->trigger_interrupt(Interrupt::VBLANK);
 	}
 
 	mmu->write_byte(Memory::STAT, stat);

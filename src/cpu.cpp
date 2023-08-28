@@ -20,54 +20,44 @@ CPU::CPU(MMU* mmu)
 	halted = false;
 }
 
-// interrupts handling 
-//
 void CPU::check_interrupts()
 {
-	// there's an enable and flag set
-	if (ime & mmu->read_byte(Memory::IE) & mmu->read_byte(Memory::IF) & 0x0F)
+	u8 interrupt_flag = mmu->read_byte(Memory::IF);
+	u8 interrupt_enable = mmu->read_byte(Memory::IE);
+
+	if (ime && (interrupt_flag & interrupt_enable))
 	{
-		ime = false;
-
-		if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::VBLANK)
+		if (interrupt_flag & interrupt_enable & Interrupt::VBLANK)
 		{
-			handle_interrupt(Memory::VBLANK_HANDLER, Interrupt::VBLANK);
+			handle_interrupt(Memory::VBLANK_INTERRUPT, Interrupt::VBLANK);
 		}
-		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::LCD)
+		if (interrupt_flag & interrupt_enable & Interrupt::STAT)
 		{
-			handle_interrupt(Memory::LCD_HANDLER, Interrupt::LCD);
+			handle_interrupt(Memory::STAT_INTERRUPT, Interrupt::STAT);
 		}
-		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::TIMER)
+		if (interrupt_flag & interrupt_enable & Interrupt::TIMER)
 		{
-			handle_interrupt(Memory::TIMER_HANDLER, Interrupt::TIMER);
+			handle_interrupt(Memory::TIMER_INTERRUPT, Interrupt::TIMER);
 		}
-		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::SERIAL)
+		if (interrupt_flag & interrupt_enable & Interrupt::SERIAL)
 		{
-			handle_interrupt(Memory::SERIAL_HANDLER, Interrupt::SERIAL);
+			handle_interrupt(Memory::SERIAL_INTERRUPT, Interrupt::SERIAL);
 		}
-		else if (mmu->read_byte(Memory::IF) & mmu->read_byte(Memory::IE) & Interrupt::JOYPAD)
+		if (interrupt_flag & interrupt_enable & Interrupt::JOYPAD)
 		{
-			handle_interrupt(Memory::JOYPAD_HANDLER, Interrupt::JOYPAD);
+			handle_interrupt(Memory::JOYPAD_INTERRUPT, Interrupt::JOYPAD);
 		}
-
-		//ime restored after routine
 	}
 }
 
-void CPU::trigger_interrupt(u8 interrupt)
+void CPU::handle_interrupt(u16 interrupt_address, u8 interrupt_bit)
 {
-	mmu->write_byte(Memory::IF, mmu->read_byte((Memory::IF) | interrupt));
-}
-
-//
-void CPU::handle_interrupt(u8 interrupt_address, u8 interrupt_flag)
-{
-	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) & ~interrupt_flag);
-	// disable interrupts
 	ime = false;
 	push(pc);
 	pc = interrupt_address;
+	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) & ~interrupt_bit);
 }
+
 
 // instructions pre-increment pc for correct order evaluation
 void CPU::execute(u8 opcode)

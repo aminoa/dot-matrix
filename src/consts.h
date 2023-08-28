@@ -549,7 +549,7 @@ const std::vector<Opcode> CB_OPCODES =
 namespace Interrupt 
 {
 	const u8 VBLANK = 1 << 0;
-	const u8 LCD = 1 << 1;
+	const u8 STAT = 1 << 1;
 	const u8 TIMER = 1 << 2;
 	const u8 SERIAL = 1 << 3;
 	const u8 JOYPAD = 1 << 4;
@@ -557,11 +557,11 @@ namespace Interrupt
 
 namespace Memory {
 	//interrupts
-    const u16 VBLANK_HANDLER = 0x40;
-    const u16 LCD_HANDLER = 0x48;
-    const u16 TIMER_HANDLER = 0x50;
-    const u16 SERIAL_HANDLER = 0x58;
-    const u16 JOYPAD_HANDLER = 0x60;
+    const u16 VBLANK_INTERRUPT = 0x40;
+    const u16 STAT_INTERRUPT = 0x48;
+    const u16 TIMER_INTERRUPT = 0x50;
+    const u16 SERIAL_INTERRUPT = 0x58;
+    const u16 JOYPAD_INTERRUPT = 0x60;
 
 	const u16 JOYPAD_ADDR = 0xFF00;
 
@@ -573,7 +573,5 @@ namespace Memory {
 	const u16 STAT = 0xFF41;
 }
 
-
-// Consts for the clock cycles
 
 // Consts for timers

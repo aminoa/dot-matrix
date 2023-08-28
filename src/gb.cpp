@@ -50,8 +50,9 @@ void GB::run()
 		//for now don't differentiate between number of cycles - explanation for [0] indexing  
 		u8 instruction_cycles = (instruction == 0xCB) ? CB_OPCODES[instruction].cycles[0] : OPCODES[instruction].cycles[0];
 
-		//cpu->check_timer(instruction_cycles);
+
 		cpu->check_interrupts();
+		//cpu->check_timer(instruction_cycles);
 
 		//ppu->tick();
 		input->update_joypad();

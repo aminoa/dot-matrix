@@ -58,15 +58,13 @@ public:
 
 	// interrupts
 	void check_interrupts();
-	void trigger_interrupt(u8 interrupt);
-	bool ime;
+	void handle_interrupt(u16 interrupt_address, u8 interrupt_bit);
+	bool ime; 
 
 	bool halted;
 	bool stopped;
 
 	// timers
-
-	//void check_timer(u8 cycles);
 
 	//registers
 	union {
@@ -100,6 +98,4 @@ public:
 		u16 HL;
 	};
 
-private:
-	void handle_interrupt(u8 interrupt_address, u8 interrupt_flag);
 };
