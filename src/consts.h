@@ -557,21 +557,31 @@ namespace Interrupt
 
 namespace Memory {
 	//interrupts
+    const u16 IF = 0xFF0F;
+	const u16 IE = 0xFFFF;
+
     const u16 VBLANK_INTERRUPT = 0x40;
     const u16 STAT_INTERRUPT = 0x48;
     const u16 TIMER_INTERRUPT = 0x50;
     const u16 SERIAL_INTERRUPT = 0x58;
     const u16 JOYPAD_INTERRUPT = 0x60;
 
-	const u16 JOYPAD_ADDR = 0xFF00;
+	// Timers
+	const u16 DIV = 0xFF04;
+	const u16 TIMA = 0xFF05;
+	const u16 TMA = 0xFF06;
+	const u16 TAC = 0xFF07;
 
-    const u16 IF = 0xFF0F;
-	const u16 IE = 0xFFFF;
+	const u16 JOYPAD_ADDR = 0xFF00;
 
 	const u16 LY = 0xFF44;
 	const u16 LYC = 0xFF45;
 	const u16 STAT = 0xFF41;
+	
 }
 
-
-// Consts for timers
+namespace Timer {
+	// TAC
+	const u8 TIMER_ENABLE = 1 << 2;
+	const u8 INPUT_CLOCK_SELECT = 1 << 1;
+}

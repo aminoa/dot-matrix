@@ -4,11 +4,14 @@
 #include "mmu.h"
 #include "ppu.h"
 #include "consts.h"
+#include "renderer.h"
 #include "input.h"
 
 #include <iostream>
 #include <fstream>
 #include <fmt/core.h>
+
+bool TESTING = false;
 
 GB::GB(const char* rom_path)
 {
@@ -16,8 +19,10 @@ GB::GB(const char* rom_path)
 	this->cart = new Cart(rom_path);
 	this->mmu = new MMU(cart);
 	this->cpu = new CPU(mmu);
-	//this->ppu = new PPU(cpu, cart->title, mmu);
+	this->ppu = new PPU(cpu, mmu);
 	this->input = new Input(mmu);
+
+	this->renderer = new Renderer(cpu, mmu, ppu, cart->title);
 }
 
 void GB::run()
@@ -41,27 +46,29 @@ void GB::run()
 			this->mmu->read_byte(cpu->pc), this->mmu->read_byte(cpu->pc + 1), this->mmu->read_byte(cpu->pc + 2), this->mmu->read_byte(cpu->pc + 3));
 		std::string state = fmt::format("{} {}",cpu_state, pc_mem);
 
-		log_file << state << std::endl;
-		//fmt::print("{} {}\n", line_count, state);
-		line_count++;
+		if (TESTING)
+		{
+			log_file << state << std::endl;
+			//fmt::print("{} {}\n", line_count, state);
+			line_count++;
+		}
 
 		cpu->execute(instruction);
 		
-		//for now don't differentiate between number of cycles - explanation for [0] indexing  
+		//doesn't differentiate between number of cycles - explanation for [0] indexing  
 		u8 instruction_cycles = (instruction == 0xCB) ? CB_OPCODES[instruction].cycles[0] : OPCODES[instruction].cycles[0];
 
-
 		cpu->check_interrupts();
-		//cpu->check_timer(instruction_cycles);
+		ppu->tick();
 
-		//ppu->tick();
+		renderer->render();
 		input->update_joypad();
 
 		// Blarg test info
-		if (mmu->read_byte(0xff02) == 0x81)
-		{
-			std::cout << mmu->read_byte(0xff01);
-			mmu->write_byte(0xff02, 0x00);
-		}
+		//if (mmu->read_byte(0xff02) == 0x81)
+		//{
+		//	std::cout << mmu->read_byte(0xff01);
+		//	mmu->write_byte(0xff02, 0x00);
+		//}
 	}
 }

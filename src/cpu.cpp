@@ -20,6 +20,11 @@ CPU::CPU(MMU* mmu)
 	halted = false;
 }
 
+void CPU::mark_interrupt(u8 interrupt_bit)
+{
+	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) | interrupt_bit);
+}
+
 void CPU::check_interrupts()
 {
 	u8 interrupt_flag = mmu->read_byte(Memory::IF);
@@ -58,6 +63,7 @@ void CPU::handle_interrupt(u16 interrupt_address, u8 interrupt_bit)
 	mmu->write_byte(Memory::IF, mmu->read_byte(Memory::IF) & ~interrupt_bit);
 }
 
+// TODO: Implement Timers
 
 // instructions pre-increment pc for correct order evaluation
 void CPU::execute(u8 opcode)

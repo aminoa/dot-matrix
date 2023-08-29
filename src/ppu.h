@@ -61,7 +61,7 @@ namespace Stat
 class PPU
 {
 public:
-	PPU(CPU* cpu, std::string title, MMU* mmu);
+	PPU(CPU* cpu, MMU* mmu);
 
 	//void display_tile_data();
 	void tick();
@@ -73,12 +73,5 @@ public:
 	MMU* mmu;
 
 	u32 cycle;
-
-	// RGBA is 64 bits
-
-	// SDL Components
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-
-	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH];
+	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH][4];
 };

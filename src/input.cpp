@@ -51,5 +51,6 @@ void Input::update_joypad()
 	}
 	
 	mmu->write_byte(Memory::JOYPAD_ADDR, ~button_mode & 0x3F);
+
 	// TODO: implement joypad interrupt
 }

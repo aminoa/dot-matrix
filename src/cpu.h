@@ -57,14 +57,13 @@ public:
 	MMU* mmu;
 
 	// interrupts
+	bool ime; 
+	void mark_interrupt(u8 interrupt_bit);
 	void check_interrupts();
 	void handle_interrupt(u16 interrupt_address, u8 interrupt_bit);
-	bool ime; 
 
 	bool halted;
 	bool stopped;
-
-	// timers
 
 	//registers
 	union {
