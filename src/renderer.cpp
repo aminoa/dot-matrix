@@ -23,10 +23,9 @@ void Renderer::render()
 {
 	// need to throttle emulation here
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 	//SDL_SetRenderTarget(renderer, viewport);
-
 
 	// TEMP: generate random pixels for PPU framebuffer
 	//for (int i = 0; i < SCREEN_HEIGHT; ++i)
@@ -38,7 +37,7 @@ void Renderer::render()
 	//		ppu->framebuffer[i][j][2] = rand() % 255;
 	//	}
 	//}
-	//
+
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
 	{
 		for (int j = 0; j < SCREEN_WIDTH; ++j)
@@ -50,5 +49,4 @@ void Renderer::render()
 	}
 	
 	SDL_RenderPresent(renderer);
-	//SDL_RenderCopy(renderer, viewport, NULL, NULL);
 }

@@ -578,6 +578,11 @@ namespace Memory {
 	const u16 LYC = 0xFF45;
 	const u16 STAT = 0xFF41;
 	
+	const u16 TILE_DATA_0 = 0x8000;
+	const u16 TILE_DATA_1 = 0x8800;
+
+	const u16 TILE_MAP_0 = 0x9800;
+	const u16 TILE_MAP_1 = 0x9C00;
 }
 
 namespace Timer {

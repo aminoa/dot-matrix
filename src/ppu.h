@@ -63,15 +63,13 @@ class PPU
 public:
 	PPU(CPU* cpu, MMU* mmu);
 
-	//void display_tile_data();
 	void tick();
-	//void draw_line(i32 ly);
-	void display_tile_data();
-	void update_frame();
+	void draw_line(u8 ly);
+	void draw_background(u8 ly);
 
 	CPU* cpu;
 	MMU* mmu;
 
 	u32 cycle;
-	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH][4];
+	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH][3];
 };
