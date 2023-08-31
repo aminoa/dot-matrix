@@ -4,13 +4,8 @@
 #include "mmu.h"
 #include "consts.h"
 
-struct Colors 
-{
-	u8 zero[3] = { 0xFF, 0xFF, 0xFF };
-	u8 one[3] = { 0xC0, 0xC0, 0xC0 };
-	u8 two[3] = { 0x60, 0x60, 0x60 };
-	u8 three[3] = { 0x00, 0x00, 0x00 };
-};
+#include <map>
+
 
 PPU::PPU(CPU* cpu, MMU* mmu)
 {
@@ -28,6 +23,11 @@ PPU::PPU(CPU* cpu, MMU* mmu)
 			framebuffer[i][j][2] = 0x0;
 		}
 	}
+
+	color_map[0] = { 0xFF, 0xFF, 0xFF };
+	color_map[1] = { 0xC0, 0xC0, 0xC0 };
+	color_map[2] = { 0x60, 0x60, 0x60 };
+	color_map[3] = { 0x00, 0x00, 0x00 };
 }
 
 void PPU::tick()
@@ -82,63 +82,50 @@ void PPU::draw_line(u8 ly)
 
 void PPU::draw_background(u8 ly)
 {
-	u16 scy = mmu->read_byte(0xFF42);
-	u16 scx = mmu->read_byte(0xFF43);
+	u16 scx = mmu->read_byte(Memory::SCROLL_X);
+	u16 scy = mmu->read_byte(Memory::SCROLL_Y);
+	u8 lcdc = mmu->read_byte(Memory::LCDC);
 	
 	// TODO: implement scrolling
-	
-	u16 bg_address = Memory::TILE_MAP_0;
+	int bg_map_start_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
+	int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+
+	// reading 20 tiles x 8 bytes = 160 (width)
+	for (int i = 0; i < 20; ++i)
+	{
+		// get tile 
+		u8 tile_number = mmu->read_byte(tile_start_address + i); //ex. 2F
+		u16 tile_data_address = tile_start_address + tile_number * 0x10; // ex. 82F0
+
+		// 16 bytes of entire tile data, ex. 0F08 FFF8 FF00 FF02 FF00 FF40 FF02 FF00 
+		// need to read 2 bytes for the tile data corresponding to the current line
+		
+		u8 tile_data[16];
+		for (int j = 0; j < 16; ++j)
+		{
+			tile_data[j] = mmu->read_byte(tile_data_address + j);
+		}
+
+		u16 y_offset = (ly % 8) * 2; //byte offset ex. 0-1, 2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15
+
+		// reading 8 pixels from the tile
+		for (int j = 0; j < 8; ++j)
+		{
+			// for one tile
+			u8 low_byte = tile_data[y_offset]; //ex. 0x0F
+			u8 high_byte = tile_data[y_offset + 1]; // ex. 0x08
+
+			// get the pixel color
+			u8 color_bit = ((low_byte >> (7 - j)) & 0x1) | (((high_byte >> (7 - j)) & 0x1) << 1);
+
+			framebuffer[ly][i * 8 + j][0] = color_map[color_bit][0];
+			framebuffer[ly][i * 8 + j][1] = color_map[color_bit][1];
+			framebuffer[ly][i * 8 + j][2] = color_map[color_bit][2];
+		}
+	}
+
 	for (int x = 0; x < SCREEN_WIDTH; ++x)
 	{
-		// need to read tile address
-		u8 tile_index = mmu->read_byte(bg_address);
-		u16 tile_address = Memory::TILE_DATA_0 + (tile_index * 0x10);
-
-		// read the tile data
-		u8 tile_data[16];
-		for (int i = 0; i < 16; ++i)
-		{
-			tile_data[i] = mmu->read_byte(tile_address + i);
-		}
-
-		// write tile data to framebuffer - copilot moment
-		for (int i = 0; i < 8; ++i)
-		{
-			u8 color_index = 0;
-			u8 bit1 = (tile_data[i * 2] >> (7 - x)) & 0x1;
-			u8 bit2 = (tile_data[i * 2 + 1] >> (7 - x)) & 0x1;
-			color_index |= bit1;
-			color_index |= bit2 << 1;
-
-			u8 color[3];
-			switch (color_index)
-			{
-			case 0:
-				color[0] = 0xFF;
-				color[1] = 0xFF;
-				color[2] = 0xFF;
-				break;
-			case 1:
-				color[0] = 0xC0;
-				color[1] = 0xC0;
-				color[2] = 0xC0;
-				break;
-			case 2:
-				color[0] = 0x60;
-				color[1] = 0x60;
-				color[2] = 0x60;
-				break;
-			case 3:
-				color[0] = 0x00;
-				color[1] = 0x00;
-				color[2] = 0x00;
-				break;
-			}
-
-			framebuffer[ly][x][0] = color[0];
-			framebuffer[ly][x][1] = color[1];
-			framebuffer[ly][x][2] = color[2];
-		}
-		
+		// only want to render the top line into the framebuffer
 	}
 }

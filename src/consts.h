@@ -555,10 +555,8 @@ namespace Interrupt
 	const u8 JOYPAD = 1 << 4;
 }
 
-namespace Memory {
-	//interrupts
-    const u16 IF = 0xFF0F;
-	const u16 IE = 0xFFFF;
+namespace Memory 
+{
 
     const u16 VBLANK_INTERRUPT = 0x40;
     const u16 STAT_INTERRUPT = 0x48;
@@ -566,17 +564,25 @@ namespace Memory {
     const u16 SERIAL_INTERRUPT = 0x58;
     const u16 JOYPAD_INTERRUPT = 0x60;
 
+	const u16 JOYPAD_ADDR = 0xFF00;
+
 	// Timers
 	const u16 DIV = 0xFF04;
 	const u16 TIMA = 0xFF05;
 	const u16 TMA = 0xFF06;
 	const u16 TAC = 0xFF07;
 
-	const u16 JOYPAD_ADDR = 0xFF00;
+	//interrupts
+    const u16 IF = 0xFF0F;
+	const u16 IE = 0xFFFF;
 
+	// LCD
+	const u16 LCDC = 0xFF40;
+	const u16 STAT = 0xFF41;
+	const u16 SCROLL_Y = 0xFF42;
+	const u16 SCROLL_X = 0xFF43;
 	const u16 LY = 0xFF44;
 	const u16 LYC = 0xFF45;
-	const u16 STAT = 0xFF41;
 	
 	const u16 TILE_DATA_0 = 0x8000;
 	const u16 TILE_DATA_1 = 0x8800;
@@ -585,8 +591,37 @@ namespace Memory {
 	const u16 TILE_MAP_1 = 0x9C00;
 }
 
-namespace Timer {
+namespace Timer 
+{
 	// TAC
 	const u8 TIMER_ENABLE = 1 << 2;
 	const u8 INPUT_CLOCK_SELECT = 1 << 1;
+}
+
+namespace LCDC
+{
+	// LCD Control Bits
+	const u8 LCD_ENABLE = 1 << 7;
+	const u8 WINDOW_TILE_MAP_SELECT = 1 << 6;
+	const u8 WINDOW_ENABLE = 1 << 5;
+	const u8 BG_WINDOW_TILE_DATA_SELECT = 1 << 4;
+	const u8 BG_TILE_MAP_SELECT = 1 << 3;
+	const u8 OBJ_SIZE = 1 << 2;
+	const u8 OBJ_ENABLE = 1 << 1;
+	const u8 BG_ENABLE = 1 << 0;
+}
+
+namespace Stat
+{
+	const u8 LYC_INTERRUPT = 1 << 6;
+	const u8 OAM_INTERRUPT = 1 << 5;
+	const u8 VBLANK_INTERRUPT = 1 << 4;
+	const u8 HBLANK_INTERRUPT = 1 << 3;
+	const u8 LYC_LY_FLAG = 1 << 2;
+	const u8 MODE_FLAG = 1 << 1 | 1 << 0;
+
+	const u8 MODE_HBLANK = 0x0;
+	const u8 MODE_VBLANK = 0x1;
+	const u8 MODE_OAM = 0x2;
+	const u8 MODE_VRAM = 0x3;
 }
