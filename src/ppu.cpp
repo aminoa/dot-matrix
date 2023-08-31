@@ -36,13 +36,9 @@ PPU::PPU(CPU* cpu, MMU* mmu)
 void PPU::tick(u8 instruction_cycles)
 {
 	this->cycles += instruction_cycles;
-
-	//u8 lx = this->cycles % 114; // 114 cycles per line
-	//u8 ly = (this->cycles / 114) % 154; // 154 lines per frame
-
 	u8 stat = mmu->read_byte(Memory::STAT);
 
-	// LYC compare and interrupt
+	// TODO: LYC compare and interrupt
 	
 	switch (mode_set)
 	{
@@ -128,14 +124,16 @@ void PPU::draw_background(u8 ly)
 	
 	// TODO: implement scrolling
 	int bg_map_start_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
-	int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+	//int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+	int tile_start_address = 0x8800;
 
 	// reading 20 tiles x 8 bytes = 160 (width)
 	for (int i = 0; i < 20; ++i)
 	{
 		// get tile 
-		u8 tile_number = mmu->read_byte(tile_start_address + i); //ex. 2F
-		u16 tile_data_address = tile_start_address + tile_number * 0x10; // ex. 82F0
+		u8 tile_number = mmu->read_byte(bg_map_start_address + i); 
+		u16 tile_data_address = tile_start_address + tile_number * 0x10;
+
 
 		// 16 bytes of entire tile data, ex. 0F08 FFF8 FF00 FF02 FF00 FF40 FF02 FF00 
 		// need to read 2 bytes for the tile data corresponding to the current line

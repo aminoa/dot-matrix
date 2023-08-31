@@ -13,7 +13,10 @@ Renderer::Renderer(CPU* cpu, MMU* mmu, PPU* ppu, std::string title)
 	this->ppu = ppu;
 
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_CreateWindowAndRenderer(SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2, 0, &window, &renderer);
+	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer);
+	
+	surface = SDL_GetWindowSurface(window);
+
 	SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 	SDL_SetWindowResizable(window, SDL_TRUE);
 	SDL_SetWindowTitle(window, title.c_str());
@@ -23,30 +26,23 @@ void Renderer::render()
 {
 	// need to throttle emulation here
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-	SDL_RenderClear(renderer);
+	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	//SDL_RenderClear(renderer);
 	//SDL_SetRenderTarget(renderer, viewport);
 
-	// TEMP: generate random pixels for PPU framebuffer
-	//for (int i = 0; i < SCREEN_HEIGHT; ++i)
-	//{
-	//	for (int j = 0; j < SCREEN_WIDTH; ++j)
-	//	{
-	//		ppu->framebuffer[i][j][0] = rand() % 255;
-	//		ppu->framebuffer[i][j][1] = rand() % 255;
-	//		ppu->framebuffer[i][j][2] = rand() % 255;
-	//	}
-	//}
+	// using an sdl surface
+
+	u32* pixels = (u32*)surface->pixels;
 
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
 	{
 		for (int j = 0; j < SCREEN_WIDTH; ++j)
 		{
 			int red = ppu->framebuffer[i][j][0], blue = ppu->framebuffer[i][j][1], green = ppu->framebuffer[i][j][2];
-			SDL_SetRenderDrawColor(renderer, red, blue, green, 255);
-			SDL_RenderDrawPoint(renderer, j, i);
+			pixels[i * SCREEN_WIDTH + j] = (255 << 24) | (red << 16) | (green << 8) | blue; //copilot moment
+
 		}
 	}
-	
-	SDL_RenderPresent(renderer);
+
+	SDL_UpdateWindowSurface(window);
 }

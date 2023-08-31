@@ -60,11 +60,11 @@ public:
 	MMU* mmu;
 
 	u32 cycles;
+	u8 ly;
 	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH][3];
 
 	VideoMode mode_set;
 
 	std::map<int, std::vector<int>> color_map;
 
-	u8 ly;
 };

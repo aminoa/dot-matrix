@@ -11,12 +11,12 @@ public:
 
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	SDL_Surface* surface;
 
 	CPU* cpu;
 	MMU* mmu;
 	PPU* ppu;
 
 private:
-	//void point_set(int x, int y, int color);
 
 };
