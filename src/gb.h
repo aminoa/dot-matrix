@@ -22,4 +22,6 @@ private:
 	const char* rom_path = nullptr;
 	Input* input = nullptr;
 
+	int cycles;
+
 };

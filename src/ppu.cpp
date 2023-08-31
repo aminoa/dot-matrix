@@ -11,7 +11,7 @@ PPU::PPU(CPU* cpu, MMU* mmu)
 {
 	this->cpu = cpu;
 	this->mmu = mmu;
-	this->cycle = 0x0;
+	this->cycles = 0x0;
 
 	//// initialize framebuffer
 	for (int i = 0; i < SCREEN_HEIGHT; ++i)
@@ -28,49 +28,89 @@ PPU::PPU(CPU* cpu, MMU* mmu)
 	color_map[1] = { 0xC0, 0xC0, 0xC0 };
 	color_map[2] = { 0x60, 0x60, 0x60 };
 	color_map[3] = { 0x00, 0x00, 0x00 };
+	
+	mode_set = VideoMode::ACCESS_OAM;
+	ly = 0;
 }
 
-void PPU::tick()
+void PPU::tick(u8 instruction_cycles)
 {
-	this->cycle++;
+	this->cycles += instruction_cycles;
 
-	u8 lx = this->cycle % 114; // 114 cycles per line
-	u8 ly = (this->cycle / 114) % 154; // 154 lines per frame
+	//u8 lx = this->cycles % 114; // 114 cycles per line
+	//u8 ly = (this->cycles / 114) % 154; // 154 lines per frame
 
-	mmu->write_byte(Memory::LY, ly);
 	u8 stat = mmu->read_byte(Memory::STAT);
 
 	// LYC compare and interrupt
-
-	// Mode 2 - OAM search
-	if (lx < 20 && ly < 144)
+	
+	switch (mode_set)
 	{
-		stat |= Stat::MODE_OAM;
-		if (stat & Stat::OAM_INTERRUPT)
+	case VideoMode::ACCESS_OAM: 
+		if (cycles >= CLOCKS_PER_SCANLINE_OAM)
 		{
-			cpu->mark_interrupt(Interrupt::STAT);
+			cycles %= CLOCKS_PER_SCANLINE_OAM;
+			mode_set = VideoMode::ACCESS_VRAM;
+
+			stat |= Stat::MODE_OAM;
+			if (stat & Stat::OAM_INTERRUPT)
+			{
+				cpu->mark_interrupt(Interrupt::STAT);
+			}
 		}
+		break;
+	case VideoMode::ACCESS_VRAM:
+		if (cycles >= CLOCKS_PER_SCANLINE_VRAM)
+		{
+			cycles %= CLOCKS_PER_SCANLINE_VRAM;
+			mode_set = VideoMode::HBLANK;
+
+			stat |= Stat::MODE_VRAM;
+
+			//TODO: implement LYC compare
+		}
+	case VideoMode::HBLANK:
+		if (cycles >= CLOCKS_PER_HBLANK)
+		{
+			draw_line(ly);
+			ly += 1;
+
+			cycles %= CLOCKS_PER_HBLANK;
+
+			if (ly == 144)
+			{
+				mode_set = VideoMode::VBLANK;
+			}
+
+			stat |= Stat::MODE_HBLANK;
+			if (stat & Stat::HBLANK_INTERRUPT)
+			{
+				cpu->mark_interrupt(Interrupt::STAT);
+			}
+		}
+		break;
+	case VideoMode::VBLANK:
+		if (cycles >= CLOCKS_PER_VBLANK)
+		{
+			cycles %= CLOCKS_PER_VBLANK;
+			ly += 1;
+
+			if (ly == 154)
+			{
+				mode_set = VideoMode::ACCESS_OAM;
+				ly = 0;
+			}
+
+			stat |= Stat::MODE_VBLANK;
+			if (stat & Stat::VBLANK_INTERRUPT)
+			{
+				cpu->mark_interrupt(Interrupt::VBLANK);
+			}
+		}
+		break;
 	}
 
-	// Mode 3 - Drawing Pixels
-	if (lx == 20 && ly < 144)
-	{
-		stat |= Stat::MODE_VRAM;
-		draw_line(ly);
-	}
-
-	// HBlank
-	else if (lx == 63 && ly < 144)
-	{
-		stat |= Stat::MODE_HBLANK;
-	}
-
-	else if (lx == 0 && ly == 144)
-	{
-		stat |= Stat::MODE_VBLANK;
-		cpu->mark_interrupt(Interrupt::VBLANK);
-	}
-
+	mmu->write_byte(Memory::LY, ly);
 	mmu->write_byte(Memory::STAT, stat);
 }
 
@@ -122,10 +162,5 @@ void PPU::draw_background(u8 ly)
 			framebuffer[ly][i * 8 + j][1] = color_map[color_bit][1];
 			framebuffer[ly][i * 8 + j][2] = color_map[color_bit][2];
 		}
-	}
-
-	for (int x = 0; x < SCREEN_WIDTH; ++x)
-	{
-		// only want to render the top line into the framebuffer
 	}
 }

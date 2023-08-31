@@ -13,6 +13,7 @@ project ("dot-matrix")
 
 # Add source to this project's executable.
 add_executable (dot-matrix "src/main.cpp" "src/gb.cpp" "src/gb.h" "src/cart.cpp" "src/cart.h" "src/consts.h" "src/cpu.h" "src/cpu.cpp" "src/mmu.h" "src/mmu.cpp" "src/ppu.h" "src/ppu.cpp" "src/input.h" "src/input.cpp" "src/renderer.h" "src/renderer.cpp")
+add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=1>)
 
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(dot-matrix PRIVATE fmt::fmt)
