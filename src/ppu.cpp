@@ -131,7 +131,8 @@ void PPU::draw_background(u8 ly)
 
 	int tile_map_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
 	//int tile_start_address = (lcdc & LCDC::BG_WInDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0; //doesn't work atm
-	int tile_start_address = 0x8000; // For Tetris
+	//int tile_start_address = 0x8000; // For Tetris
+	int tile_start_address = 0x8800;
 
 	for (int x = 0; x < SCREEN_WIDTH; ++x)
 	{
@@ -148,10 +149,10 @@ void PPU::draw_background(u8 ly)
 		u8 tile_id = mmu->read_byte(tile_id_address);
 
 		// TODO: account for different tile offsets
-		//int tile_data_offset = (i8)(tile_id + 128) * 0x10;
+		int tile_data_offset = ((i8)(tile_id) + 128) * 0x10;
 
-		u16 tile_line_data_start_addr = tile_start_address + (tile_id * 0x10) + (tile_pixel_y * 2);
-		//u16 tile_line_data_start_addr = tile_start_address + tile_data_offset + (tile_pixel_y * 2);
+		//u16 tile_line_data_start_addr = tile_start_address + (tile_id * 0x10) + (tile_pixel_y * 2);
+		u16 tile_line_data_start_addr = tile_start_address + tile_data_offset + (tile_pixel_y * 2);
 
 		u8 low_byte = mmu->read_byte(tile_line_data_start_addr);
 		u8 high_byte = mmu->read_byte(tile_line_data_start_addr + 1);
