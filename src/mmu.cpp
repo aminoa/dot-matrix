@@ -1,6 +1,8 @@
 #pragma once
 #include "mmu.h"
 
+bool TETRIS_PATCH = true;
+
 MMU::MMU(Cart* cart)
 {
 	this->ram = std::vector<u8>(0x10000);
@@ -14,10 +16,14 @@ u8 MMU::read_byte(u16 addr)
 	//if (addr == 0xFF44) { return 0x90; }
 
 	// Tetris - disable all input
-	if (addr == 0xFF00) { return 0xFF; }
+	// randomly either return 0x17 or 0xFF
+	//if (addr == 0xFF00) 
+	//{ 
+	//	return rand() % 2 ? 0x17 : 0xFF; 
+	//}
+
 
 	if (addr <= 0x7FFF) { return this->cart->rom[addr]; } 
-
 	
 	return this->ram[addr];
 	
@@ -25,6 +31,9 @@ u8 MMU::read_byte(u16 addr)
 
 void MMU::write_byte(u16 addr, u8 val)
 {
+
+	if (TETRIS_PATCH && addr == 0xFF80) { return; } // TODO: remove patch
+
 	this->ram[addr] = val;
 }
 

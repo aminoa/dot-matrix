@@ -45,6 +45,7 @@ void PPU::tick(u8 instruction_cycles)
 	case VideoMode::ACCESS_OAM: 
 		if (cycles >= CLOCKS_PER_SCANLINE_OAM)
 		{
+			mmu->write_byte(0xFF85, 0);
 			cycles %= CLOCKS_PER_SCANLINE_OAM;
 			mode_set = VideoMode::ACCESS_VRAM;
 
@@ -94,14 +95,17 @@ void PPU::tick(u8 instruction_cycles)
 			if (ly == 154)
 			{
 				mode_set = VideoMode::ACCESS_OAM;
+				cpu->mark_interrupt(Interrupt::VBLANK);
+
+				// TODO: fix this so firing the interrupt actually works without needing to do this write
+				mmu->write_byte(0xFF85, 0x1);
 				ly = 0;
 			}
 
 			stat |= Stat::MODE_VBLANK;
-			if (stat & Stat::VBLANK_INTERRUPT)
-			{
-				cpu->mark_interrupt(Interrupt::VBLANK);
-			}
+			//if (stat & Stat::VBLANK_INTERRUPT)
+			//{
+			//}
 		}
 		break;
 	}
@@ -126,7 +130,7 @@ void PPU::draw_background(u8 ly)
 	// TODO: implement scrolling
 
 	int tile_map_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
-	//int tile_start_address = (lcdc & LCDC::BG_WInDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+	//int tile_start_address = (lcdc & LCDC::BG_WInDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0; //doesn't work atm
 	int tile_start_address = 0x8000; // For Tetris
 
 	for (int x = 0; x < SCREEN_WIDTH; ++x)
@@ -144,7 +148,10 @@ void PPU::draw_background(u8 ly)
 		u8 tile_id = mmu->read_byte(tile_id_address);
 
 		// TODO: account for different tile offsets
+		//int tile_data_offset = (i8)(tile_id + 128) * 0x10;
+
 		u16 tile_line_data_start_addr = tile_start_address + (tile_id * 0x10) + (tile_pixel_y * 2);
+		//u16 tile_line_data_start_addr = tile_start_address + tile_data_offset + (tile_pixel_y * 2);
 
 		u8 low_byte = mmu->read_byte(tile_line_data_start_addr);
 		u8 high_byte = mmu->read_byte(tile_line_data_start_addr + 1);
