@@ -27,7 +27,7 @@ GB::GB(const char* rom_path)
 
 void GB::run()
 {
-	std::fstream log_file;
+	//std::fstream log_file;
 	//log_file.open("../../../tools/gameboy-doctor/log.txt", std::ios::out);
 	////log_file.clear();
 	//int line_count = 1;
@@ -61,7 +61,7 @@ void GB::run()
 		cpu->check_interrupts();
 		ppu->tick(instruction_cycles);
 
-		if (ppu->ly == 0)
+		if (ppu->ly == 144)
 		{
 			renderer->render();
 			input->update_joypad();

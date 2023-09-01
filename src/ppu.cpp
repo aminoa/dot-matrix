@@ -116,6 +116,7 @@ void PPU::draw_line(u8 ly)
 	//draw_window(ly);
 }
 
+// https://github.com/jgilchrist/gbemu/blob/master/src/video/video.cc - referenced this
 void PPU::draw_background(u8 ly)
 {
 	u16 scx = mmu->read_byte(Memory::SCROLL_X);
@@ -123,42 +124,74 @@ void PPU::draw_background(u8 ly)
 	u8 lcdc = mmu->read_byte(Memory::LCDC);
 	
 	// TODO: implement scrolling
-	int bg_map_start_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
-	//int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
-	int tile_start_address = 0x8800;
 
-	// reading 20 tiles x 8 bytes = 160 (width)
-	for (int i = 0; i < 20; ++i)
+	int tile_map_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
+	int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+	//int tile_start_address = 0x8800; // TEMP: dr. mario 
+
+	for (int x = 0; x < SCREEN_WIDTH; ++x)
 	{
-		// get tile 
-		u8 tile_number = mmu->read_byte(bg_map_start_address + i); 
-		u16 tile_data_address = tile_start_address + tile_number * 0x10;
+		// getting the tile position
+		int tile_x = x / 8;
+		int tile_y = ly / 8;
 
+		// getting the sub tile pixel positions
+		int tile_pixel_x = x % 8;
+		int tile_pixel_y = ly % 8;
 
-		// 16 bytes of entire tile data, ex. 0F08 FFF8 FF00 FF02 FF00 FF40 FF02 FF00 
-		// need to read 2 bytes for the tile data corresponding to the current line
+		int tile_index = tile_y * 0x20 + tile_x;
+		u16 tile_id_address = tile_map_address + tile_index;
+		u8 tile_id = mmu->read_byte(tile_id_address);
+
+		// TODO: account for different tile offsets
+		u16 tile_line_data_start_addr = tile_start_address + (tile_id * 0x10) + (tile_pixel_y * 2);
+
+		u8 low_byte = mmu->read_byte(tile_line_data_start_addr);
+		u8 high_byte = mmu->read_byte(tile_line_data_start_addr + 1);
+
+		// need to get the color id from the tile data
+
+		int color_bit = ((low_byte >> (7 - tile_pixel_x)) & 0x1) | (((high_byte >> (7 - tile_pixel_x)) & 0x1) << 1);
+		framebuffer[ly][x][0] = color_map[color_bit][0];
+		framebuffer[ly][x][1] = color_map[color_bit][1];
+		framebuffer[ly][x][2] = color_map[color_bit][2];
+
 		
-		u8 tile_data[16];
-		for (int j = 0; j < 16; ++j)
-		{
-			tile_data[j] = mmu->read_byte(tile_data_address + j);
-		}
-
-		u16 y_offset = (ly % 8) * 2; //byte offset ex. 0-1, 2-3, 4-5, 6-7, 8-9, 10-11, 12-13, 14-15
-
-		// reading 8 pixels from the tile
-		for (int j = 0; j < 8; ++j)
-		{
-			// for one tile
-			u8 low_byte = tile_data[y_offset]; //ex. 0x0F
-			u8 high_byte = tile_data[y_offset + 1]; // ex. 0x08
-
-			// get the pixel color
-			u8 color_bit = ((low_byte >> (7 - j)) & 0x1) | (((high_byte >> (7 - j)) & 0x1) << 1);
-
-			framebuffer[ly][i * 8 + j][0] = color_map[color_bit][0];
-			framebuffer[ly][i * 8 + j][1] = color_map[color_bit][1];
-			framebuffer[ly][i * 8 + j][2] = color_map[color_bit][2];
-		}
 	}
 }
+
+// draws 8 bits of the tile line starting from position x at current line y
+void PPU::draw_tile_line(i16 tile_id, u16 x, u16 y)
+{
+	// TODO: account for 0x8800 tile data
+	u16 addr = Memory::TILE_DATA_0 + tile_id * 0x10 + y * 2;
+	u8 low_byte = mmu->read_byte(addr);
+	u8 high_byte = mmu->read_byte(addr + 1);
+
+	// draw 8 pixels
+	for (int i = 0; i < 8; ++i)
+	{
+		u8 color_bit = (((high_byte >> (7 - i)) & 0x1) << 1) | ((low_byte >> (7 - i)) & 0x1);
+
+		framebuffer[y][x + i][0] = color_map[color_bit][0];
+		framebuffer[y][x + i][1] = color_map[color_bit][1];
+		framebuffer[y][x + i][2] = color_map[color_bit][2];
+	}
+}
+
+//void PPU::debug_draw_tile_map()
+//{
+//	//for (int y = 0; y < 32; ++y)
+//	//{
+//	//	for (int x = 0; x < 32; ++x)
+//	//	{
+//	//		u8 tile_id = mmu->read_byte(tile_map_address + y * 32 + x);
+//	//		draw_tile_line(tile_id, x * 8, y * 8);
+//	//	}
+//	//}
+//
+//	u8 tile_map_addr = 0x8000;
+//
+//
+//
+//}

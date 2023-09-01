@@ -54,17 +54,19 @@ public:
 	void draw_line(u8 ly);
 	void draw_background(u8 ly);
 
-	void draw_tile_line(u16 tile_short, u8 ly);
+	void draw_tile_line(i16 tile_id, u16 x, u16 ly);
+
+	// debug functions
+	//void debug_draw_tile_map();
 
 	CPU* cpu;
 	MMU* mmu;
 
 	u32 cycles;
-	u8 ly;
+	u16 ly;
 	u32 framebuffer[SCREEN_HEIGHT][SCREEN_WIDTH][3];
 
 	VideoMode mode_set;
 
 	std::map<int, std::vector<int>> color_map;
-
 };

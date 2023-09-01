@@ -13,7 +13,11 @@ u8 MMU::read_byte(u16 addr)
 	//stub LY register to 0x90 - only needed for blargs test roms
 	//if (addr == 0xFF44) { return 0x90; }
 
+	// Tetris - disable all input
+	if (addr == 0xFF00) { return 0xFF; }
+
 	if (addr <= 0x7FFF) { return this->cart->rom[addr]; } 
+
 	
 	return this->ram[addr];
 	
