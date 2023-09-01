@@ -13,7 +13,7 @@ A C++ Nintendo Game Boy emulator. Rendering is done via the SDL2 library. This w
 - When doing intermediate argument reads with the CPU, it's best to do the reads first with the MMU and store them into separate variables, then modify the PC at the very end of the switch statement (by adding to it from an array of byte counts); the code will be much easier to manage this way
 - SDL_RenderDrawPoint is extremely slow, don't use it - I switched to using an SDL Surface but an SDL Texture would be even better
 - I shamelessly stole from emulator source codes including [gbemu](https://github.com/jgilchrist/gbemu/), [PatBoy](https://github.com/Jonazan2/PatBoy/), [RosettaBoy](https://github.com/shish/rosettaboy/), [SameBoy](https://github.com/LIJI32/SameBoy/tree/master/), etc.
-- I also used a lot of resouces online for study - these include the [pandocs](https://gbdev.io/pandocs/) and some blog entries including [Robert's A Journey into GameBoy emulation](https://robertovaccari.com/blog/2020_09_26_gameboy/) and [Cinoop's Writing a Game Boy Emulator](https://cturt.github.io/cinoop.html).
+- I also used a lot of resouces online for study - these include the [pandocs](https://gbdev.io/pandocs/), [The Ultimate Game Boy Talk](https://www.youtube.com/watch?v=HyzD8pNlpwI) and some blog entries including [Robert's A Journey into GameBoy emulation](https://robertovaccari.com/blog/2020_09_26_gameboy/) and [Cinoop's Writing a Game Boy Emulator](https://cturt.github.io/cinoop.html).
 - Missing features: Timers, MBCs, PPU window/sprite rendering, proper input support, audio
 
 ## Dependencies
