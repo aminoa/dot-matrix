@@ -126,8 +126,8 @@ void PPU::draw_background(u8 ly)
 	// TODO: implement scrolling
 
 	int tile_map_address = (lcdc & LCDC::BG_TILE_MAP_SELECT) ? Memory::TILE_MAP_1 : Memory::TILE_MAP_0;
-	int tile_start_address = (lcdc & LCDC::BG_WINDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
-	//int tile_start_address = 0x8800; // TEMP: dr. mario 
+	//int tile_start_address = (lcdc & LCDC::BG_WInDOW_TILE_DATA_SELECT) ? Memory::TILE_DATA_1 : Memory::TILE_DATA_0;
+	int tile_start_address = 0x8000; // For Tetris
 
 	for (int x = 0; x < SCREEN_WIDTH; ++x)
 	{
@@ -155,43 +155,5 @@ void PPU::draw_background(u8 ly)
 		framebuffer[ly][x][0] = color_map[color_bit][0];
 		framebuffer[ly][x][1] = color_map[color_bit][1];
 		framebuffer[ly][x][2] = color_map[color_bit][2];
-
-		
 	}
 }
-
-// draws 8 bits of the tile line starting from position x at current line y
-void PPU::draw_tile_line(i16 tile_id, u16 x, u16 y)
-{
-	// TODO: account for 0x8800 tile data
-	u16 addr = Memory::TILE_DATA_0 + tile_id * 0x10 + y * 2;
-	u8 low_byte = mmu->read_byte(addr);
-	u8 high_byte = mmu->read_byte(addr + 1);
-
-	// draw 8 pixels
-	for (int i = 0; i < 8; ++i)
-	{
-		u8 color_bit = (((high_byte >> (7 - i)) & 0x1) << 1) | ((low_byte >> (7 - i)) & 0x1);
-
-		framebuffer[y][x + i][0] = color_map[color_bit][0];
-		framebuffer[y][x + i][1] = color_map[color_bit][1];
-		framebuffer[y][x + i][2] = color_map[color_bit][2];
-	}
-}
-
-//void PPU::debug_draw_tile_map()
-//{
-//	//for (int y = 0; y < 32; ++y)
-//	//{
-//	//	for (int x = 0; x < 32; ++x)
-//	//	{
-//	//		u8 tile_id = mmu->read_byte(tile_map_address + y * 32 + x);
-//	//		draw_tile_line(tile_id, x * 8, y * 8);
-//	//	}
-//	//}
-//
-//	u8 tile_map_addr = 0x8000;
-//
-//
-//
-//}
