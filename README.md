@@ -4,7 +4,7 @@ A C++ Nintendo Game Boy emulator. Rendering is done via the SDL2 library. This w
 
 ## Screenshots
 
-<img src="https://github.com/aminoa/dot-matrix/blob/main/screenshots/Tetris%20Title.png?raw=true" width="200"> <img src="https://github.com/aminoa/dot-matrix/blob/main/screenshots/Dr.%20Mario%20Title.png?raw=true" width="200"> 
+<img src="./screenshots/Tetris%20Title.png?raw=true" width="200"> <img src="./screenshots/Dr.%20Mario%20Title.png?raw=true" width="200"> 
 
 ## Thoughts 🤔
 
